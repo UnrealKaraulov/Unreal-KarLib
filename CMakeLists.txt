@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
 project(UnrealKarLibrary LANGUAGES CXX)
 ENABLE_LANGUAGE(C)
 
-set_property(GLOBAL PROPERTY CXX_STANDARD 17)
-set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # src
 set(THIRD_PARTY "${CMAKE_SOURCE_DIR}/third_party")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
@@ -37,17 +33,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "karlib")
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 
-set(FLAGS "-m32 -O3 -std=c++17 -std=gnu++17")
-
-set_target_properties(
-        ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-        "${FLAGS} \
-        -fexceptions \
-        -Wall \
-        -Werror \
-        -std=c++17  \
-        -std=gnu++17"
-)
+set(FLAGS "-m32 -std=gnu++17 -std=c++17 -O3")
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
 	set_target_properties(
@@ -66,5 +52,19 @@ else()
 			-no-intel-extensions"
 	)
 endif()
+
+
+set_property(GLOBAL PROPERTY CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+
+
+set_target_properties(
+        ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
+        "${FLAGS} \
+        -fexceptions \
+        -Wall \
+        -Werror "
+)
 
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
