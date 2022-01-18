@@ -1,4 +1,5 @@
 #include <amxmodx>
+#include <fakemeta>
 #include <karlab>
 
 public plugin_init() {
@@ -7,21 +8,8 @@ public plugin_init() {
 	register_concmd("test_info","InitTestInfo", ADMIN_RCON, "InitTestInfo")
 	register_concmd("test_regex","InitTestRegex", ADMIN_RCON, "InitTestRegex")
 	register_concmd("startserver8080","InitMiniServer8080", ADMIN_RCON, "InitTestInfo")
-}
-
-public InitDownload(Index)
-{
-	test_download_speed(Index )
-}
-
-public InitTestInfo(Index)
-{
-	print_sys_info(Index )
-}
-
-public InitTestRegex(Index)
-{
-	test_regex_req(Index )
+	register_concmd("test_view_angles","PrintViewAngles", ADMIN_RCON, "PrintViewAngles")
+	
 }
 
 public InitMiniServer8080(Index)
@@ -44,4 +32,29 @@ public mini_server_req(ip[],params[],values[])
 	{
 		mini_server_res(ip,"<center><h1>Only real players can use mini server!</h1></center>")
 	}
+}
+
+
+public InitTestRegex(Index)
+{
+	test_regex_req(Index )
+}
+
+public InitDownload(Index)
+{
+	test_download_speed(Index )
+}
+
+public InitTestInfo(Index)
+{
+	print_sys_info(Index )
+}
+
+public PrintViewAngles(Index)
+{
+	test_view_angles(Index)
+	new msg[256];
+	new Float:Angles[3];
+	pev(Index,pev_v_angle,Angles);
+	client_print_color(Index,Index,"Amxx Angles: %f %f %f", Angles[0],Angles[1],Angles[2]);
 }

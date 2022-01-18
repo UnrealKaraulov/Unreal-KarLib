@@ -32,6 +32,11 @@ bool IsPlayerSafe(int Player)
 	return IsPlayer(Player) && MF_IsPlayerIngame(Player);
 }
 
+void UTIL_TextMsg(int iPlayer, std::string message)
+{
+	UTIL_TextMsg(iPlayer, message.c_str());
+}
+
 void UTIL_TextMsg(edict_t* pPlayer, const char* message)
 {
 	if (g_hTextMsg == 0)
@@ -63,7 +68,7 @@ void UTIL_TextMsg(int iPlayer, const char* message)
 		return;
 	}
 	edict_t* pPlayer = MF_GetPlayerEdict(iPlayer);
-
+	
 	UTIL_TextMsg(pPlayer, message);
 }
 
@@ -360,6 +365,29 @@ static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 	return 0;
 }
 
+
+static cell AMX_NATIVE_CALL test_view_angles(AMX* amx, cell* params) // 1 pararam
+{
+	int index = params[1];
+	if (!IsPlayerSafe(index))
+	{
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
+		return 0;
+	}
+
+	edict_t* pPlayer = MF_GetPlayerEdict(index);
+
+	char msg[256];
+	sprintf_s(msg, sizeof(msg), "Angle %f %f %f", pPlayer->v.v_angle[0], pPlayer->v.v_angle[1], pPlayer->v.v_angle[2]);
+
+	UTIL_TextMsg(index, msg);
+
+	
+	return 0;
+}
+
+
+
 AMX_NATIVE_INFO my_Natives[] =
 {
 	{"test_download_speed",	test_download_speed},
@@ -368,6 +396,7 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"init_mini_server",	init_mini_server},
 	{"stop_mini_server",	stop_mini_server},
 	{"mini_server_res",	mini_server_res},
+	{"test_view_angles",	test_view_angles},
 	{NULL,			NULL},
 };
 

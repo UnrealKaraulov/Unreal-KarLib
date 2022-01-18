@@ -77,7 +77,6 @@
     <ClCompile Include="./../src/karlab_natives.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="./../src/header.h" />
     <ClInclude Include="./../src/httplib.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
