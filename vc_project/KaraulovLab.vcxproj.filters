@@ -7,9 +7,15 @@
     <ClCompile Include="./../src/karlab_natives.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="./../src/rehlds_api.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="./../src/k_rehlds_api.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

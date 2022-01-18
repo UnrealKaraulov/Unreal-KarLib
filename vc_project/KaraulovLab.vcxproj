@@ -75,10 +75,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="./../third_party/amxmodx/public/sdk/amxxmodule.cpp" />
+    <ClCompile Include="./../third_party/hlsdk/public/interface.cpp" />
     <ClCompile Include="./../src/karlab_natives.cpp" />
+    <ClCompile Include="./../src/rehlds_api.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h" />
+    <ClInclude Include="./../src/k_rehlds_api.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Source.def" />

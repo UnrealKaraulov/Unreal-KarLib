@@ -13,6 +13,8 @@
 #include "api/moduleconfig.h"
 #include <amxxmodule.h>
 
+#include "k_rehlds_api.h"
+
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
 
@@ -405,6 +407,7 @@ void OnPluginsLoaded()
 
 void OnAmxxAttach() // Server start
 {
+	RehldsApi_Init();
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);

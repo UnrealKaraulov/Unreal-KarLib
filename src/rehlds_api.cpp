@@ -1,0 +1,63 @@
+#include "amxxmodule.h"
+
+#include "k_rehlds_api.h"
+
+IRehldsApi *g_RehldsApi;
+const RehldsFuncs_t *g_RehldsFuncs;
+IRehldsHookchains *g_RehldsHookchains;
+IRehldsServerStatic *g_RehldsSvs;
+IRehldsServerData *g_RehldsSv;
+
+bool RehldsApi_TryInit(CSysModule *engineModule, char *failureReason)
+{
+	if (!engineModule) {
+		return false;
+	}
+
+	CreateInterfaceFn ifaceFactory = Sys_GetFactory(engineModule);
+
+	if (!ifaceFactory) {
+		sprintf(failureReason, "Failed to locate interface factory in engine module\n");
+		return false;
+	}
+
+	int retCode = 0;
+	g_RehldsApi = (IRehldsApi*)ifaceFactory(VREHLDS_HLDS_API_VERSION, &retCode);
+
+	if (!g_RehldsApi) {
+		sprintf(failureReason, "Failed to locate retrieve rehlds api interface from engine module, return code is %d\n", retCode);
+		return false;
+	}
+
+	int majorVersion = g_RehldsApi->GetMajorVersion();
+	int minorVersion = g_RehldsApi->GetMinorVersion();
+
+	if (majorVersion != REHLDS_API_VERSION_MAJOR) {
+		sprintf(failureReason, "REHLDS Api major version mismatch; expected %d, real %d\n", REHLDS_API_VERSION_MAJOR, majorVersion);
+		return false;
+	}
+
+	if (minorVersion < REHLDS_API_VERSION_MINOR) {
+		sprintf(failureReason, "REHLDS Api minor version mismatch; expected at least %d, real %d\n", REHLDS_API_VERSION_MINOR, minorVersion);
+		return false;
+	}
+
+	g_RehldsFuncs = g_RehldsApi->GetFuncs();
+	g_RehldsHookchains = g_RehldsApi->GetHookchains();
+	g_RehldsSvs = g_RehldsApi->GetServerStatic();
+	g_RehldsSv = g_RehldsApi->GetServerData();
+
+	return true;
+}
+
+
+
+bool RehldsApi_Init() {
+	char failReason[2048];
+	const char* szGameDLLModule = GET_GAME_INFO(PLID, GINFO_REALDLL_FULLPATH);
+	CSysModule *engineModule = Sys_LoadModule(szGameDLLModule);
+	if (!RehldsApi_TryInit(engineModule, failReason)) {
+		return false;
+	}
+	return true;
+}
