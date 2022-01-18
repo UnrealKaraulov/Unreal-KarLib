@@ -378,7 +378,7 @@ static cell AMX_NATIVE_CALL test_view_angles(AMX* amx, cell* params) // 1 parara
 	edict_t* pPlayer = MF_GetPlayerEdict(index);
 
 	char msg[256];
-	sprintf_s(msg, sizeof(msg), "Angle %f %f %f", pPlayer->v.v_angle[0], pPlayer->v.v_angle[1], pPlayer->v.v_angle[2]);
+	snprintf(msg, sizeof(msg), "Angle %f %f %f", pPlayer->v.v_angle[0], pPlayer->v.v_angle[1], pPlayer->v.v_angle[2]);
 
 	UTIL_TextMsg(index, msg);
 
