@@ -44,23 +44,19 @@ set(FLAGS "-m32 -O3 -pipe -fvisibility-inlines-hidden -fvisibility=hidden -flto 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
         "${FLAGS} \
-        -fno-strict-aliasing \
         -fexceptions \
-        -g \
+        -Os \
         -Wall \
         -Werror \
-        -fdata-sections \
-        -ffunction-sections \
         -std=c++17  \
-        -std=gnu++17 \
-        -Wunknown-pragmas"
+        -std=gnu++17"
 )
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
 	set_target_properties(
 			${PROJECT_NAME} PROPERTIES LINK_FLAGS
 			"${FLAGS} \
-			-Wl,--gc-sections \
+			-Wl \
 			-static-libstdc++ \
 			-static-libgcc"
 	)
@@ -68,7 +64,7 @@ else()
 	set_target_properties(
 			${PROJECT_NAME} PROPERTIES LINK_FLAGS
 			"${FLAGS} \
-			-Wl,--gc-sections \
+			-Wl \
 			-static-libstdc++ \
 			-static-libgcc \
 			-static-intel \
