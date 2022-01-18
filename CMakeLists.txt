@@ -61,11 +61,11 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 else()
 	set_target_properties(
 			${PROJECT_NAME} PROPERTIES LINK_FLAGS
-			"${FLAGS}			\
-			-Wl,--gc-sections	\
-			-static-libstdc++	\
-			-static-libgcc		\
-			-static-intel		\
+			"${FLAGS} \
+			-Wl,--gc-sections \
+			-static-libstdc++ \
+			-static-libgcc \
+			-static-intel \
 			-no-intel-extensions"
 	)
 endif()

@@ -175,14 +175,17 @@ void download_speed_thread()
 			}
 			catch (const std::runtime_error& re)
 			{
+				g_iSpeedTestPart += 100;
 				g_last_error = re.what();
 			}
 			catch (const std::exception& ex)
 			{
+				g_iSpeedTestPart += 100;
 				g_last_error = ex.what();
 			}
 			catch (...)
 			{
+				g_iSpeedTestPart += 100;
 				g_last_error = "Unhandled exception";
 			}
 		}
@@ -208,14 +211,15 @@ void StartFrame(void)
 			char tmpSpeedResult[256];
 			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "Result: download 100mb in %f seconds.", g_flSpeedTestResult);
 			UTIL_TextMsg(g_hPlayerSpeedCaller, tmpSpeedResult);
+			g_iSpeedTestPart = 0;
 		}
-		else if (IsPlayerSafe(g_hPlayerSpeedCaller))
+		else if (IsPlayerSafe(g_hPlayerSpeedCaller) && g_iSpeedTestPart > 100)
 		{
 			char tmpSpeedResult[256];
 			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "%s - %i - message : %s", "Result: crash.", g_iSpeedTestPart, g_last_error.c_str());
 			UTIL_TextMsg(g_hPlayerSpeedCaller, tmpSpeedResult);
+			g_iSpeedTestPart = 0;
 		}
-		g_iSpeedTestPart = 0;
 	}
 }
 
