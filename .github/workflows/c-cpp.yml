@@ -13,12 +13,13 @@ jobs:
     name: 'Linux'
     runs-on: ubuntu-latest
     container: s1lentq/linux86buildtools:latest
-    
-    env:
-     solution: 'vc_project/KaraulovLab.sln'
-
 
     steps:
+     - name: Setup cmake
+       uses: jwlawson/actions-setup-cmake@v1.12
+       with:
+            cmake-version: '3.16.x'
+
      - name: Checkout
        uses: actions/checkout@v2
        with:
