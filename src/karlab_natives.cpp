@@ -17,6 +17,7 @@ std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
 
 int g_iSpeedTestPart = 0;
+std::string g_last_error = "No error";
 float g_flSpeedTestResult;
 int g_hPlayerSpeedCaller;
 int g_hTextMsg = 0;
@@ -170,11 +171,19 @@ void download_speed_thread()
 
 				g_flSpeedTestResult = time_span.count();
 
-				g_iSpeedTestPart = 2;
+				g_iSpeedTestPart = 10;
+			}
+			catch (const std::runtime_error& re)
+			{
+				g_last_error = re.what();
+			}
+			catch (const std::exception& ex)
+			{
+				g_last_error = ex.what();
 			}
 			catch (...)
 			{
-
+				g_last_error = "Unhandled exception";
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -194,7 +203,7 @@ void StartFrame(void)
 
 	if (g_iSpeedTestPart >= 2)
 	{
-		if (IsPlayerSafe(g_hPlayerSpeedCaller) && g_iSpeedTestPart == 2)
+		if (IsPlayerSafe(g_hPlayerSpeedCaller) && g_iSpeedTestPart == 10)
 		{
 			char tmpSpeedResult[256];
 			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "Result: download 100mb in %f seconds.", g_flSpeedTestResult);
@@ -203,7 +212,7 @@ void StartFrame(void)
 		else if (IsPlayerSafe(g_hPlayerSpeedCaller))
 		{
 			char tmpSpeedResult[256];
-			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "%s - %i", "Result: crash.", g_iSpeedTestPart);
+			snprintf(tmpSpeedResult, sizeof(tmpSpeedResult), "%s - %i - message : %s", "Result: crash.", g_iSpeedTestPart, g_last_error.c_str());
 			UTIL_TextMsg(g_hPlayerSpeedCaller, tmpSpeedResult);
 		}
 		g_iSpeedTestPart = 0;
