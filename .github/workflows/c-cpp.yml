@@ -49,7 +49,7 @@ jobs:
 
   windows:
     name: 'Windows'
-    runs-on: windows-latest
+    runs-on: windows-2022
     
     env:
      solution: 'vc_project/KaraulovLab.sln'
@@ -66,11 +66,11 @@ jobs:
        with:
             vs-prerelease: true
 
+     - name: Build app for release
+       run: msbuild ${{ env.solution }} -t:rebuild -verbosity:diag -property:Configuration=Release
+
      - name: Artifact1
        uses: actions/upload-artifact@v2
        with:
          name: Windows
          path: ./vc_project/Release/karlib_amxx.dll
-
-     - name: Build app for release
-       run: msbuild ${{ env.solution }} -t:rebuild -verbosity:diag -property:Configuration=Release
