@@ -49,14 +49,23 @@ set_target_properties(
         -Wunknown-pragmas"
 )
 
-set_target_properties(
-        ${PROJECT_NAME} PROPERTIES LINK_FLAGS
-        "${FLAGS} \
-        -Wl,--gc-sections \
-        -static-libstdc++ \
-        -static-libgcc"
-)
 
-if ("$ENV{CXX}" MATCHES "icpc")
-	set(LINK_FLAGS "${LINK_FLAGS} -static-intel -no-intel-extensions")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"")
+	set_target_properties(
+			${PROJECT_NAME} PROPERTIES LINK_FLAGS
+			"${FLAGS} \
+			-Wl,--gc-sections \
+			-static-libstdc++ \
+			-static-libgcc"
+	)
+else()
+	set_target_properties(
+			${PROJECT_NAME} PROPERTIES LINK_FLAGS
+			"${FLAGS}			\
+			-Wl,--gc-sections	\
+			-static-libstdc++	\
+			-static-libgcc		\
+			-static-intel		\
+			-no-intel-extensions"
+	)
 endif()
