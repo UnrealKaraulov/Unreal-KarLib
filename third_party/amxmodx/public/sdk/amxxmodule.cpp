@@ -12,10 +12,6 @@
 // Module SDK
 //
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #include <string.h>
 #include <new>
 #include <stdarg.h>
@@ -3161,5 +3157,3 @@ unsigned int strncopy(D *dest, const S *src, size_t count)
 
 	return (dest - start);
 }
-
-#pragma GCC diagnostic pop

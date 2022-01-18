@@ -1,8 +1,5 @@
-#if !defined HEADER_H
-#define HEADER_H
-#define HAVE_STDINT_H
-#include "api/moduleconfig.h"
-#include <amxxmodule.h>
+#pragma once
+
 
 #define CONST const
 #define INT int
@@ -14,4 +11,3 @@
 void OnAmxxAttach(void);
 void OnAmxxDetach(void);
 void StartFrame(void);
-#endif

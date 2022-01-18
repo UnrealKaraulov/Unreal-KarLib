@@ -16,8 +16,6 @@
 #ifndef __AMXXMODULE_H__
 #define __AMXXMODULE_H__
 
-#pragma GCC system_header
-
 // config
 #include "../../../src/api/moduleconfig.h"
 #include <IGameConfigs.h>
@@ -45,7 +43,7 @@
 #endif
 
 #undef C_DLLEXPORT
-#define C_DLLEXPORT extern "C" DLLEXPORT
+#define C_DLLEXPORT	extern "C" DLLEXPORT
 
 // ***** AMXX stuff *****
 

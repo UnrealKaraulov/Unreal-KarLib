@@ -22,6 +22,11 @@ include_directories(${API_INCLUDE_PATH_LIST})
 
 link_directories(${THIRD_PARTY}/linux32)
 
+INCLUDE(CheckIncludeFile)
+INCLUDE(CheckIncludeFileCXX)
+
+CHECK_INCLUDE_FILE(stdint.h     HAVE_STDINT_H)
+
 file(GLOB_RECURSE SOURCE_FILES ${SRC_DIR}/*.cpp ${AMXXSDK}/sdk/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")

@@ -13,6 +13,10 @@ jobs:
     name: 'Linux'
     runs-on: ubuntu-latest
     container: s1lentq/linux86buildtools:latest
+    
+    env:
+     solution: 'vc_project/KaraulovLab.sln'
+
 
     steps:
      - name: Checkout
@@ -31,18 +35,42 @@ jobs:
        run: |
             rm -rf build-gcc && CC=gcc CXX=g++ cmake -B build-gcc && cmake --build build-gcc -j8   
 
-     - name: Directory
-       run: |
-            ls -R 
+     - name: Artifact1
+       uses: actions/upload-artifact@v2
+       with:
+         name: linux
+         path: ./build/karlib_amxx_i386.so
+
+     - name: Artifact2
+       uses: actions/upload-artifact@v2
+       with:
+        name: linux_gcc
+        path: ./build-gcc/karlib_amxx_i386.so
+
+  windows:
+    name: 'Windows'
+    runs-on: windows-latest
+    
+    env:
+     solution: 'vc_project/KaraulovLab.sln'
+
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v2
+       with:
+            fetch-depth: 0
+            submodules: true
+
+     - name: Add msbuild to PATH
+       uses: microsoft/setup-msbuild@v1.1
+       with:
+            vs-prerelease: true
 
      - name: Artifact1
        uses: actions/upload-artifact@v2
        with:
-         name: linux32
-         path: ./build/karlib_amxx_i386.so
-         
-     - name: Artifact2
-       uses: actions/upload-artifact@v2
-       with:
-        name: linux32_gcc
-        path: ./build-gcc/karlib_amxx_i386.so
+         name: Windows
+         path: ./vc_project/Release/karlib_amxx.dll
+
+     - name: Build app for release
+       run: msbuild ${{ env.solution }} -t:rebuild -verbosity:diag -property:Configuration=Release

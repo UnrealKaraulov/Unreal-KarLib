@@ -1,5 +1,3 @@
-#define HAVE_STDINT_H
-
 #ifndef WIN32
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -11,7 +9,9 @@
 #include <string>
 #include <stdio.h>
 #include <fstream>
-#include "header.h"
+
+#include "api/moduleconfig.h"
+#include <amxxmodule.h>
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
