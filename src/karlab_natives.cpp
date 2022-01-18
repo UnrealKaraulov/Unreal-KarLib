@@ -29,7 +29,7 @@ bool IsPlayer(int Player)
 
 bool IsPlayerSafe(int Player)
 {
-	return MF_IsPlayerIngame(Player);
+	return IsPlayer(Player) && MF_IsPlayerIngame(Player);
 }
 
 void UTIL_TextMsg(edict_t* pPlayer, const char* message)
@@ -58,11 +58,7 @@ void UTIL_TextMsg(edict_t* pPlayer, const char* message)
 
 void UTIL_TextMsg(int iPlayer, const char* message)
 {
-	if (!IsPlayer(iPlayer))
-	{
-		return;
-	}
-	else if (!IsPlayerSafe(iPlayer))
+	if (!IsPlayerSafe(iPlayer))
 	{
 		return;
 	}
@@ -228,23 +224,16 @@ void StartFrame(void)
 static cell AMX_NATIVE_CALL test_download_speed(AMX* amx, cell* params) // 1 pararam
 {
 	int index = params[1];
-	if (IsPlayer(index))
+	if (!IsPlayerSafe(index))
 	{
-		if (!IsPlayerSafe(index))
-		{
-			MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
-			return 0;
-		}
-		UTIL_TextMsg(index, "Start download speed test. Please wait for finish.");
-		if (g_iSpeedTestPart <= 0)
-		{
-			g_hPlayerSpeedCaller = index;
-			g_iSpeedTestPart = 1;
-		}
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
+		return 0;
 	}
-	else
+	UTIL_TextMsg(index, "Start download speed test. Please wait for finish.");
+	if (g_iSpeedTestPart <= 0)
 	{
-		MF_LogError(amx, AMX_ERR_NATIVE, "Player %d is not valid!", index);
+		g_hPlayerSpeedCaller = index;
+		g_iSpeedTestPart = 1;
 	}
 	return 0;
 }
@@ -254,56 +243,50 @@ static cell AMX_NATIVE_CALL test_download_speed(AMX* amx, cell* params) // 1 par
 static cell AMX_NATIVE_CALL print_sys_info(AMX* amx, cell* params) // 1 pararam
 {
 	int index = params[1];
-	if (IsPlayer(index))
+	if (!IsPlayerSafe(index))
 	{
-		if (!IsPlayerSafe(index))
-		{
-			MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
-			return 0;
-		}
-		char tmpSysInfoPrint[256];
-#ifndef WIN32
-		/* Conversion constants. */
-		const long minute = 60;
-		const long hour = minute * 60;
-		const long day = hour * 24;
-		const double megabyte = 1024 * 1024;
-		/* Obtain system statistics. */
-		struct sysinfo si;
-		sysinfo(&si);
-
-
-		snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "Up : %ld days, %ld:%02ld:%02ld. Ram/Free: %5.1f MB / %5.1f MB. CPU's:  %d", si.uptime / day, (si.uptime % day) / hour,
-			(si.uptime % hour) / minute, si.uptime % minute, si.totalram / megabyte, si.freeram / megabyte, si.procs);
-		UTIL_TextMsg(index, tmpSysInfoPrint);
-
-		struct utsname sysinfo;
-		uname(&sysinfo);
-
-		std::string tmpSysString = "Sys: " + std::string(sysinfo.sysname) +
-			". Host: " + std::string(sysinfo.nodename) +
-			". Release: " + std::string(sysinfo.release);
-
-		snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s", tmpSysString.c_str());
-		UTIL_TextMsg(index, tmpSysInfoPrint);
-
-		tmpSysString =
-			". Build: " + std::string(sysinfo.version) +
-			". Arch: " + std::string(sysinfo.machine) +
-			". Name: " + std::string(sysinfo.domainname);
-		snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s", tmpSysString.c_str());
-		UTIL_TextMsg(index, tmpSysInfoPrint);
-#else 
-		/*SYSTEM_INFO siSysInfo;
-		GetSystemInfo(&siSysInfo);
-		*/
-		UTIL_TextMsg(index, "Win32 not supported!");
-#endif
-}
-	else
-	{
-		MF_LogError(amx, AMX_ERR_NATIVE, "Player %d is not valid!", index);
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
+		return 0;
 	}
+	char tmpSysInfoPrint[256];
+#ifndef WIN32
+	/* Conversion constants. */
+	const long minute = 60;
+	const long hour = minute * 60;
+	const long day = hour * 24;
+	const double megabyte = 1024 * 1024;
+	/* Obtain system statistics. */
+	struct sysinfo si;
+	sysinfo(&si);
+
+
+	snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "Up : %ld days, %ld:%02ld:%02ld. Ram/Free: %5.1f MB / %5.1f MB. CPU's:  %d", si.uptime / day, (si.uptime % day) / hour,
+		(si.uptime % hour) / minute, si.uptime % minute, si.totalram / megabyte, si.freeram / megabyte, si.procs);
+	UTIL_TextMsg(index, tmpSysInfoPrint);
+
+	struct utsname sysinfo;
+	uname(&sysinfo);
+
+	std::string tmpSysString = "Sys: " + std::string(sysinfo.sysname) +
+		". Host: " + std::string(sysinfo.nodename) +
+		". Release: " + std::string(sysinfo.release);
+
+	snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s", tmpSysString.c_str());
+	UTIL_TextMsg(index, tmpSysInfoPrint);
+
+	tmpSysString =
+		". Build: " + std::string(sysinfo.version) +
+		". Arch: " + std::string(sysinfo.machine) +
+		". Name: " + std::string(sysinfo.domainname);
+	snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s", tmpSysString.c_str());
+	UTIL_TextMsg(index, tmpSysInfoPrint);
+#else 
+	/*SYSTEM_INFO siSysInfo;
+	GetSystemInfo(&siSysInfo);
+	*/
+	UTIL_TextMsg(index, "Win32 not supported!");
+#endif
+	
 	return 0;
 }
 
@@ -338,44 +321,41 @@ static cell AMX_NATIVE_CALL mini_server_res(AMX* amx, cell* params) // 2 params
 static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 {
 	int index = params[1];
-	if (IsPlayer(index))
+	if (!IsPlayerSafe(index))
 	{
-		if (!IsPlayerSafe(index))
-		{
-			MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
-			return 0;
-		}
-		char tmpSysInfoPrint[256];
-		int error = 0;
-		try
-		{
-			error = 1;
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
+		return 0;
+	}
+	char tmpSysInfoPrint[256];
+	int error = 0;
+	try
+	{
+		error = 1;
 
-			const static std::regex re("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
+		const static std::regex re("(HTTP/1\\.[01]) (\\d{3}) (.*?)\r\n");
 
-			error = 2;
-			std::cmatch m;
-			error = 3;
+		error = 2;
+		std::cmatch m;
+		error = 3;
 
-			if (std::regex_match("HTTP/1.1 200 OK\r\n", m, re)) {
-				error = 4;
-				auto version = std::string(m[1]);
-				auto status = std::stoi(std::string(m[2]));
-				auto reason = std::string(m[3]);
-				error = 5;
-				snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i:%s", version.c_str(), status, reason.c_str());
-				error = 6;
-				UTIL_TextMsg(index, tmpSysInfoPrint);
-				error = 7;
-			}
-			else
-				UTIL_TextMsg(index, "regex_match: false");
-		}
-		catch (...)
-		{
-			snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i", "Fatal error", error);
+		if (std::regex_match("HTTP/1.1 200 OK\r\n", m, re)) {
+			error = 4;
+			auto version = std::string(m[1]);
+			auto status = std::stoi(std::string(m[2]));
+			auto reason = std::string(m[3]);
+			error = 5;
+			snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i:%s", version.c_str(), status, reason.c_str());
+			error = 6;
 			UTIL_TextMsg(index, tmpSysInfoPrint);
+			error = 7;
 		}
+		else
+			UTIL_TextMsg(index, "regex_match: false");
+	}
+	catch (...)
+	{
+		snprintf(tmpSysInfoPrint, sizeof(tmpSysInfoPrint), "%s:%i", "Fatal error", error);
+		UTIL_TextMsg(index, tmpSysInfoPrint);
 	}
 	return 0;
 }
