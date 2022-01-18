@@ -1,6 +1,6 @@
 
-#Library for create Web Server in AMXMODX (Interactive motd window, stats, register systems etc)
-#Also possible to test real net speed.
+**Library for create Web Server in AMXMODX (Interactive motd window, stats, register systems etc)
+Also possible to test real net speed.**
  
 **NATIVES**
 
