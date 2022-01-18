@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.9)
-project(UnrealKarLibrary)
+cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
 
+project(UnrealKarLibrary LANGUAGES CXX)
 
 set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD 17)
