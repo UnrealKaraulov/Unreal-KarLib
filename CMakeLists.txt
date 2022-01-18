@@ -33,7 +33,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "karlib")
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 
-set(FLAGS "-m32 -std=gnu++17 -std=c++17 -O3")
+add_definitions(-D_GLIBCXX_USE_CXX17_ABI=0)
+add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
+
+set(FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0" )
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
 	set_target_properties(
@@ -66,5 +69,3 @@ set_target_properties(
         -Wall \
         -Werror "
 )
-
-add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
