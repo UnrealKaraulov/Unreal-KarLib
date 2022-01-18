@@ -46,6 +46,7 @@ set_target_properties(
         -Werror \
         -fdata-sections \
         -ffunction-sections \
+        -std=c++17 \
         -Wunknown-pragmas"
 )
 
