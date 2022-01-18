@@ -36,19 +36,21 @@ set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 add_definitions(-D_GLIBCXX_USE_CXX17_ABI=0)
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=0)
 
-set(FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0" )
+set(CMAKE_CXX_FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0" )
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fPIC")
 
 if ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC"))
 	set_target_properties(
 			${PROJECT_NAME} PROPERTIES LINK_FLAGS
-			"${FLAGS} \
+			"${CMAKE_CXX_FLAGS} \
 			-static-libstdc++ \
 			-static-libgcc"
 	)
 else()
 	set_target_properties(
 			${PROJECT_NAME} PROPERTIES LINK_FLAGS
-			"${FLAGS} \
+			"${CMAKE_CXX_FLAGS} \
 			-static-libstdc++ \
 			-static-libgcc \
 			-static-intel \
@@ -64,7 +66,7 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
-        "${FLAGS} \
+        "${CMAKE_CXX_FLAGS} \
         -fexceptions \
         -Wall \
         -Werror "
