@@ -153,14 +153,14 @@ void download_speed_thread()
 			try
 			{
 				g_iSpeedTestPart = 3;
-				httplib::Client cli("speedtest.hostkey.ru", 80);
+				httplib::Client cli("speed.hetzner.de", 80);
 				using namespace std::chrono;
 				g_iSpeedTestPart = 4;
 				high_resolution_clock::time_point t1 = high_resolution_clock::now();
 				g_iSpeedTestPart = 5;
 				cli.set_connection_timeout(5);
 				g_iSpeedTestPart = 6;
-				auto res = cli.Get("/files/100mb.bin");
+				auto res = cli.Get("/100MB.bin");
 				g_iSpeedTestPart = 7;
 				high_resolution_clock::time_point t2 = high_resolution_clock::now();
 				g_iSpeedTestPart = 8;
