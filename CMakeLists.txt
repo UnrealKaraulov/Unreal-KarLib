@@ -33,8 +33,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "karlib")
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 
-set(CMAKE_CXX_FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -O3 -fvisibility-inlines-hidden -fvisibility=hidden -flto -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0 \
-					 -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_strnicmp=strncasecmp -D_stricmp=strcasecmp -D_LINUX -DLINUX -DNDEBUG -DHAVE_STRONG_TYPEDEF" )
+set(CMAKE_CXX_FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0 \
+					 -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_strnicmp=strncasecmp -D_stricmp=strcasecmp " )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fPIC")
 
@@ -77,5 +77,4 @@ else()
 			-Werror "
 	)
 endif()
-
 
