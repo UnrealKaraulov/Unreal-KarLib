@@ -16,18 +16,6 @@
 //  parsemsg.cpp
 //
 //--------------------------------------------------------------------------------------------------------------
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-	#ifndef _CRT_SECURE_NO_DEPRECATE
-		#define _CRT_SECURE_NO_DEPRECATE
-	#endif
-
-	#ifndef _CRT_SECURE_NO_WARNINGS
-		#define _CRT_SECURE_NO_WARNINGS
-	#endif
-
-	#pragma warning(disable: 4996) // deprecated functions
-#endif
-
 #include "parsemsg.h"
 #include <port.h>
 
@@ -148,8 +136,7 @@ float READ_FLOAT( void )
 char* READ_STRING( void )
 {
 	static char     string[2048];
-	size_t		l;
-	int             c;
+	int             l,c;
 
 	string[0] = 0;
 

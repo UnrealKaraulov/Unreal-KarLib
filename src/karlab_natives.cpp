@@ -386,8 +386,6 @@ static cell AMX_NATIVE_CALL test_view_angles(AMX* amx, cell* params) // 1 parara
 	return 0;
 }
 
-
-
 AMX_NATIVE_INFO my_Natives[] =
 {
 	{"test_download_speed",	test_download_speed},

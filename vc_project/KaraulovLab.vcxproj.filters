@@ -21,4 +21,7 @@
       <UniqueIdentifier>{1989d29d-d1a0-4ea2-945f-b48ef431e73e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Source.def" />
+  </ItemGroup>
 </Project>

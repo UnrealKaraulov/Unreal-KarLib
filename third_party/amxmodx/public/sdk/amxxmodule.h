@@ -18,7 +18,6 @@
 
 // config
 #include "../../../src/api/moduleconfig.h"
-#include <IGameConfigs.h>
 
 #include <stddef.h> // size_t
 // metamod include files
@@ -28,22 +27,7 @@
 #include <h_export.h>
 #endif // #ifdef USE_METAMOD
 
-// DLL Export
-#undef DLLEXPORT
-#if defined(_WIN32)
-#define DLLEXPORT __declspec(dllexport)
-#else
-#define DLLEXPORT __attribute__((visibility("default")))
-#endif
-
-#if defined(__linux__) && !defined(LINUX)
-#define LINUX
-#elif defined(__APPLE__) && !defined(OSX)
-#define OSX
-#endif
-
-#undef C_DLLEXPORT
-#define C_DLLEXPORT	extern "C" DLLEXPORT
+#include <cbase.h>
 
 // ***** AMXX stuff *****
 
@@ -133,11 +117,11 @@ struct amxx_module_info_s
 /* calling convention for all interface functions and callback functions */
 #if !defined AMXAPI
   #if defined STDECL
-    #define AMXAPI      __stdcall
+    #define AMXAPI      STDECL
   #elif defined CDECL
-    #define AMXAPI      __cdecl
+    #define AMXAPI      CDECL
   #else
-    #define AMXAPI
+    #define AMXAPI		/* */
   #endif
 #endif
 #if !defined AMXEXPORT
@@ -164,12 +148,13 @@ struct amxx_module_info_s
 
 #define UNPACKEDMAX   ((1 << (sizeof(cell)-1)*8) - 1)
 #define UNLIMITED     (~1u >> 1)
-
 struct tagAMX;
-typedef cell (AMX_NATIVE_CALL *AMX_NATIVE)(struct tagAMX *amx, cell *params);
-typedef int (AMXAPI *AMX_CALLBACK)(struct tagAMX *amx, cell index,
+typedef cell (AMX_NATIVE_CALL * AMX_NATIVE)( tagAMX *amx, cell *params);
+
+typedef int (AMXAPI * AMX_CALLBACK)( tagAMX *amx, cell index,
                                    cell *result, cell *params);
-typedef int (AMXAPI *AMX_DEBUG)(struct tagAMX *amx);
+								   
+typedef int (AMXAPI * AMX_DEBUG)( tagAMX *amx);
 #if !defined _FAR
   #define _FAR
 #endif
@@ -2220,7 +2205,7 @@ typedef const char *	(*PFN_GETLOCALINFO)				(const char * /*name*/, const char *
 typedef int				(*PFN_AMX_REREGISTER)			(AMX * /*amx*/, AMX_NATIVE_INFO * /*list*/, int /*list*/);
 typedef void *			(*PFN_REGISTERFUNCTIONEX)		(void * /*pfn*/, const char * /*desc*/);
 typedef void			(*PFN_MESSAGE_BLOCK)			(int /* mode */, int /* message */, int * /* opt */);
-typedef IGameConfigManager* (*PFN_GET_CONFIG_MANAGER)   ();
+
 
 extern PFN_ADD_NATIVES				g_fn_AddNatives;
 extern PFN_ADD_NEW_NATIVES			g_fn_AddNewNatives;
@@ -2301,7 +2286,6 @@ extern PFN_GETLOCALINFO				g_fn_GetLocalInfo;
 extern PFN_AMX_REREGISTER			g_fn_AmxReRegister;
 extern PFN_REGISTERFUNCTIONEX		g_fn_RegisterFunctionEx;
 extern PFN_MESSAGE_BLOCK			g_fn_MessageBlock;
-extern PFN_GET_CONFIG_MANAGER		g_fn_GetConfigManager;
 
 #ifdef MAY_NEVER_BE_DEFINED
 // Function prototypes for intellisense and similar systems

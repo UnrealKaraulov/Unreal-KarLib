@@ -15,9 +15,7 @@
 #if !defined ( R_EFXH )
 #define R_EFXH
 #ifdef _WIN32
-#ifndef __MINGW32__
 #pragma once
-#endif /* not __MINGW32__ */
 #endif
 
 // particle_t
@@ -118,7 +116,7 @@ typedef struct efx_api_s efx_api_t;
 
 struct efx_api_s
 {
-	particle_t  *( *R_AllocParticle )			( void ( *callback ) ( struct particle_s *particle, float frametime ) );
+	particle_t *( *R_AllocParticle )			( void ( *callback ) ( struct particle_s *particle, float frametime ) );
 	void		( *R_BlobExplosion )			( float * org );
 	void		( *R_Blood )					( float * org, float * dir, int pcolor, int speed );
 	void		( *R_BloodSprite )				( float * org, int colorindex, int modelIndex, int modelIndex2, float size );

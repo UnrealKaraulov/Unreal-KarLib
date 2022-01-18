@@ -2220,7 +2220,7 @@ static META_FUNCTIONS g_MetaFunctions_Table =
 	GetEngineFunctions_Post
 };
 
-C_DLLEXPORT int Meta_Query(const char *ifvers, plugin_info_t **pPlugInfo, mutil_funcs_t *pMetaUtilFuncs)
+C_DLLEXPORT int Meta_Query(char* ifvers, plugin_info_t** plinfo, mutil_funcs_t* pMetaUtilFuncs)
 {
 	if ((int) CVAR_GET_FLOAT("developer") != 0)
 		UTIL_LogPrintf("[%s] dev: called: Meta_Query; version=%s, ours=%s\n", 
@@ -2234,7 +2234,7 @@ C_DLLEXPORT int Meta_Query(const char *ifvers, plugin_info_t **pPlugInfo, mutil_
 
 	gpMetaUtilFuncs = pMetaUtilFuncs;
 
-	*pPlugInfo = &Plugin_info;
+	*plinfo = &Plugin_info;
 
 	// Check for interface version compatibility.
 	if(!FStrEq(ifvers, Plugin_info.ifvers)) {
@@ -2313,85 +2313,10 @@ C_DLLEXPORT int Meta_Detach(PLUG_LOADTIME now, PL_UNLOAD_REASON reason)
 }
 
 
-
-#if defined(__linux__) || defined(__APPLE__)
-// linux prototype
-C_DLLEXPORT void GiveFnptrsToDll( enginefuncs_t* pengfuncsFromEngine, globalvars_t *pGlobals ) {
-
-#else
-#ifdef _MSC_VER
-// MSVC: Simulate __stdcall calling convention
-C_DLLEXPORT __declspec(naked) void GiveFnptrsToDll( enginefuncs_t* pengfuncsFromEngine, globalvars_t *pGlobals )
+C_DLLEXPORT void WINAPI GiveFnptrsToDll(enginefuncs_t* pengfuncsFromEngine, globalvars_t* pGlobals)
 {
-	__asm			// Prolog
-	{
-		// Save ebp
-		push		ebp
-		// Set stack frame pointer
-		mov			ebp, esp
-		// Allocate space for local variables
-		// The MSVC compiler gives us the needed size in __LOCAL_SIZE.
-		sub			esp, __LOCAL_SIZE
-		// Push registers
-		push		ebx
-		push		esi
-		push		edi
-	}
-#else	// _MSC_VER
-#ifdef __GNUC__
-// GCC can also work with this
-C_DLLEXPORT void __stdcall GiveFnptrsToDll( enginefuncs_t* pengfuncsFromEngine, globalvars_t *pGlobals )
-{
-#else	// __GNUC__
-// compiler not known
-#error There is no support (yet) for your compiler. Please use MSVC or GCC compilers or contact the AMX Mod X dev team.
-#endif	// __GNUC__
-#endif // _MSC_VER
-#endif // __linux__
-
-	// ** Function core <--
 	memcpy(&g_engfuncs, pengfuncsFromEngine, sizeof(enginefuncs_t));
 	gpGlobals = pGlobals;
-	// NOTE!  Have to call logging function _after_ copying into g_engfuncs, so
-	// that g_engfuncs.pfnAlertMessage() can be resolved properly, heh. :)
-	// UTIL_LogPrintf("[%s] dev: called: GiveFnptrsToDll\n", Plugin_info.logtag);
-	// --> ** Function core
-
-#ifdef _MSC_VER
-	// Epilog
-	if (sizeof(int*) == 8)
-	{	// 64 bit
-		__asm
-		{
-			// Pop registers
-			pop	edi
-			pop	esi
-			pop	ebx
-			// Restore stack frame pointer
-			mov	esp, ebp
-			// Restore ebp
-			pop	ebp
-			// 2 * sizeof(int*) = 16 on 64 bit
-			ret 16
-		}
-	}
-	else
-	{	// 32 bit
-		__asm
-		{
-			// Pop registers
-			pop	edi
-			pop	esi
-			pop	ebx
-			// Restore stack frame pointer
-			mov	esp, ebp
-			// Restore ebp
-			pop	ebp
-			// 2 * sizeof(int*) = 8 on 32 bit
-			ret 8
-		}
-	}
-#endif // #ifdef _MSC_VER
 }
 
 #endif	// #ifdef USE_METAMOD
@@ -2501,8 +2426,6 @@ PFN_GETLOCALINFO			g_fn_GetLocalInfo;
 PFN_AMX_REREGISTER			g_fn_AmxReRegister;
 PFN_REGISTERFUNCTIONEX		g_fn_RegisterFunctionEx;
 PFN_MESSAGE_BLOCK			g_fn_MessageBlock;
-PFN_GET_CONFIG_MANAGER		g_fn_GetConfigManager;
-
 // *** Exports ***
 C_DLLEXPORT int AMXX_Query(int *interfaceVersion, amxx_module_info_s *moduleInfo)
 {
@@ -2561,7 +2484,6 @@ C_DLLEXPORT int AMXX_Attach(PFN_REQ_FNPTR reqFnptrFunc)
 	REQFUNC("Format", g_fn_Format, PFN_FORMAT);
 	REQFUNC("RegisterFunction", g_fn_RegisterFunction, PFN_REGISTERFUNCTION);
 	REQFUNC("RegisterFunctionEx", g_fn_RegisterFunctionEx, PFN_REGISTERFUNCTIONEX);
-	REQFUNC("GetConfigManager", g_fn_GetConfigManager, PFN_GET_CONFIG_MANAGER);
 
 	// Amx scripts
 	REQFUNC("GetAmxScript", g_fn_GetAmxScript, PFN_GET_AMXSCRIPT);
@@ -3022,12 +2944,12 @@ void operator delete[](void * ptr) {
 */
 
 #include <extdll.h>
-#include "sdk_util.h"
+#include "util.h"
 #include <cbase.h>
 
 #include <string.h>			// for strncpy(), etc
 
-#include "osdep.h"			// win32 vsnprintf, etc
+//#include "osdep.h"			// win32 vsnprintf, etc
 
 char* UTIL_VarArgs( char *format, ... )
 {

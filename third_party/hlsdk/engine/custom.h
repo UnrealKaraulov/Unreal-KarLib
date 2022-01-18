@@ -13,18 +13,12 @@
 *
 ****/
 // Customization.h
-
-#ifndef CUSTOM_H
-#define CUSTOM_H
-#ifdef _WIN32
-#ifndef __MINGW32__
 #pragma once
-#endif /* not __MINGW32__ */
-#endif
 
 #include "const.h"
 
 #define MAX_QPATH 64    // Must match value in quakedefs.h
+#define MAX_RESOURCE_LIST	1280
 
 /////////////////
 // Customization
@@ -39,6 +33,9 @@ typedef enum
 	t_generic,
 	t_eventscript,
 	t_world,		// Fake type for world, is really t_model
+	rt_unk,
+
+	rt_max
 } resourcetype_t;
 
 
@@ -49,7 +46,7 @@ typedef struct
 
 typedef struct resourceinfo_s
 {
-	_resourceinfo_t info[ 8 ];
+	_resourceinfo_t info[ rt_max ];
 } resourceinfo_t;
 
 #define RES_FATALIFMISSING (1<<0)   // Disconnect if we can't get this file.
@@ -58,7 +55,8 @@ typedef struct resourceinfo_s
 								    // or is it a server startup resource.
 #define RES_REQUESTED	   (1<<3)	// Already requested a download of this one
 #define RES_PRECACHED	   (1<<4)	// Already precached
-#define RES_ALWAYS		   (1<<5)	// download always even if available on client	
+#define RES_ALWAYS		   (1<<5)	// download always even if available on client
+#define RES_UNK_6          (1<<6)   // TODO: what is it?
 #define RES_CHECKFILE	   (1<<7)	// check file on client
 
 #include "crc.h"
@@ -96,10 +94,3 @@ typedef struct customization_s
 #define FCUST_FROMHPAK		( 1<<0 )
 #define FCUST_WIPEDATA		( 1<<1 )
 #define FCUST_IGNOREINIT	( 1<<2 )
-
-void		COM_ClearCustomizationList( struct customization_s *pHead, qboolean bCleanDecals);
-qboolean	COM_CreateCustomization( struct customization_s *pListHead, struct resource_s *pResource, int playernumber, int flags, 
-				struct customization_s **pCustomization, int *nLumps ); 
-int			COM_SizeofResourceList ( struct resource_s *pList, struct resourceinfo_s *ri );
-
-#endif // CUSTOM_H

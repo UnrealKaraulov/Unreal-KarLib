@@ -14,6 +14,7 @@
 #ifndef __MODULECONFIG_H__
 #define __MODULECONFIG_H__
 
+
 /** Module info
  * -The logtag is the tag that the module's log messages will be
  *   prepended with.

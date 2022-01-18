@@ -1,0 +1,5 @@
+LIBRARY karlib
+EXPORTS
+	GiveFnptrsToDll
+SECTIONS
+	.data READ WRITE

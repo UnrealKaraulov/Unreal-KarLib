@@ -15,20 +15,18 @@
 #ifndef PROGDEFS_H
 #define PROGDEFS_H
 #ifdef _WIN32
-#ifndef __MINGW32__
 #pragma once
-#endif /* not __MINGW32__ */
 #endif
 
-typedef struct
+typedef struct globalvars_s
 {	
 	float		time;
 	float		frametime;
 	float		force_retouch;
 	string_t	mapname;
 	string_t	startspot;
-	float		deathmatch;
-	float		coop;
+	float		deathmatch_;
+	float		coop_;
 	float		teamplay;
 	float		serverflags;
 	float		found_secrets;

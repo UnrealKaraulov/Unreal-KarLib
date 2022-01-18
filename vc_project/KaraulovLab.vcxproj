@@ -24,7 +24,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>karlib_amxx</TargetName>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-    <IncludePath>$(SolutionDir);$(SolutionDir)..\third_party\hlsdk\public;$(SolutionDir)..\third_party\hlsdk\common;$(SolutionDir)..\third_party\hlsdk\engine;$(SolutionDir)..\third_party\hlsdk\dlls;$(SolutionDir)..\third_party\hlsdk;$(SolutionDir)..\third_party\metamod-hl1\metamod;$(SolutionDir)..\third_party\amxmodx\public;$(SolutionDir)..\third_party\amxmodx\public\sdk;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(SolutionDir)..\third_party\hlsdk\public;$(SolutionDir)..\third_party\hlsdk\pm_shared;$(SolutionDir)..\third_party\hlsdk\common;$(SolutionDir)..\third_party\hlsdk\engine;$(SolutionDir)..\third_party\hlsdk\dlls;$(SolutionDir)..\third_party\hlsdk;$(SolutionDir)..\third_party\metamod-hl1;$(SolutionDir)..\third_party\amxmodx\public;$(SolutionDir)..\third_party\amxmodx\public\sdk;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -70,6 +70,7 @@
       <EnableUAC>false</EnableUAC>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <ModuleDefinitionFile>Source.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -78,6 +79,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

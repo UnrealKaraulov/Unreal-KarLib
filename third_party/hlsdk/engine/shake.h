@@ -33,6 +33,7 @@ extern void V_CalcShake( void );
 extern int V_ScreenShake( const char *pszName, int iSize, void *pbuf );
 extern int V_ScreenFade( const char *pszName, int iSize, void *pbuf );
 
+
 // Fade in/out
 extern int gmsgFade;
 

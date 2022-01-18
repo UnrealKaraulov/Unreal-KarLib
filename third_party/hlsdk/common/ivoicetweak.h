@@ -8,9 +8,7 @@
 #ifndef IVOICETWEAK_H
 #define IVOICETWEAK_H
 #ifdef _WIN32
-#ifndef __MINGW32__
 #pragma once
-#endif /* not __MINGW32__ */
 #endif
 
 // These provide access to the voice controls.
@@ -28,12 +26,12 @@ typedef struct IVoiceTweak_s
 	// without sending to the server. 
 	int				(*StartVoiceTweakMode)();	// Returns 0 on error.
 	void			(*EndVoiceTweakMode)();
-	
+
 	// Get/set control values.
 	void			(*SetControlFloat)(VoiceTweakControl iControl, float value);
 	float			(*GetControlFloat)(VoiceTweakControl iControl);
 
-    int             (*GetSpeakingVolume)();
+	int				(*GetSpeakingVolume)();
 } IVoiceTweak;
 
 

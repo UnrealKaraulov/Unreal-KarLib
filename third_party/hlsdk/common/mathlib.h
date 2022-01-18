@@ -1,158 +1,127 @@
-/***
+/*
 *
-*	Copyright (c) 1996-2002, Valve LLC. All rights reserved.
-*	
-*	This product contains software technology licensed from Id 
-*	Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc. 
-*	All Rights Reserved.
+*   This program is free software; you can redistribute it and/or modify it
+*   under the terms of the GNU General Public License as published by the
+*   Free Software Foundation; either version 2 of the License, or (at
+*   your option) any later version.
 *
-*   Use, distribution, and modification of this source code and/or resulting
-*   object code is restricted to non-commercial enhancements to products from
-*   Valve LLC.  All other use, distribution, or modification is prohibited
-*   without written permission from Valve LLC.
+*   This program is distributed in the hope that it will be useful, but
+*   WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+*   General Public License for more details.
 *
-****/
-// mathlib.h
+*   You should have received a copy of the GNU General Public License
+*   along with this program; if not, write to the Free Software Foundation,
+*   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*
+*   In addition, as a special exception, the author gives permission to
+*   link the code of this program with the Half-Life Game Engine ("HL
+*   Engine") and Modified Game Libraries ("MODs") developed by Valve,
+*   L.L.C ("Valve").  You must obey the GNU General Public License in all
+*   respects for all of the code used other than the HL Engine and MODs
+*   from Valve.  If you modify this file, you may extend this exception
+*   to your version of the file, but you are not obligated to do so.  If
+*   you do not wish to do so, delete this exception statement from your
+*   version.
+*
+*/
+
+#pragma once
+
+#ifdef PLAY_GAMEDLL
+
+// probably gamedll compiled with flag /fpmath:fasted,
+// so we need to use type double, otherwise will be the test failed
+
+typedef double float_precision;
+
+#else
+
+typedef float float_precision;
+
+#endif // PLAY_GAMEDLL
 
 typedef float vec_t;
-#ifndef DID_VEC3_T_DEFINE
-#define DID_VEC3_T_DEFINE
 typedef vec_t vec3_t[3];
+typedef vec_t vec4_t[4];
+typedef int fixed16_t;
+
+typedef union DLONG_u
+{
+	int i[2];
+	double d;
+	float f;
+} DLONG;
+
+#define M_PI			3.14159265358979323846
+
+#ifdef __cplusplus
+#ifdef min
+#undef min
 #endif
-typedef vec_t vec4_t[4];	// x,y,z,w
-typedef vec_t vec5_t[5];
 
-typedef short vec_s_t;
-typedef vec_s_t vec3s_t[3];
-typedef vec_s_t vec4s_t[4];	// x,y,z,w
-typedef vec_s_t vec5s_t[5];
-
-typedef	int	fixed4_t;
-typedef	int	fixed8_t;
-typedef	int	fixed16_t;
-#ifndef M_PI
-#define M_PI		3.14159265358979323846	// matches value in gcc v2 math.h
+#ifdef max
+#undef max
 #endif
 
-struct mplane_s;
-
-extern vec3_t vec3_origin;
-extern	int nanmask;
-
-#define	IS_NAN(x) (((*(int *)&x)&nanmask)==nanmask)
-
-#ifndef VECTOR_H
-	#define DotProduct(x,y) ((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#ifdef clamp
+#undef clamp
 #endif
+
+template <typename T>
+const T& min(const T& a, const T& b) { return (a < b) ? a : b; }
+
+template <typename T>
+const T& max(const T& a, const T& b) { return (a > b) ? a : b; }
+
+template <typename T>
+const T& clamp(const T& a, const T& min, const T& max) { return (a > max) ? max : (a < min) ? min : a; }
+
+#else // __cplusplus
+
+#ifndef max
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#define clamp(val, min, max) (((val) > (max)) ? (max) : (((val) < (min)) ? (min) : (val)))
+#endif // __cplusplus
+
+// bitwise operators templates
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T operator~ (T a) { return (T)~(type)a; }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T operator| (T a, T b) { return (T)((type)a | (type)b); }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T operator& (T a, T b) { return (T)((type)a & (type)b); }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T operator^ (T a, T b) { return (T)((type)a ^ (type)b); }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T& operator|= (T& a, T b) { return (T&)((type&)a |= (type)b); }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T& operator&= (T& a, T b) { return (T&)((type&)a &= (type)b); }
+template<class T, class type=typename std::underlying_type<T>::type>
+inline T& operator^= (T& a, T b) { return (T&)((type&)a ^= (type)b); }
+
+inline double M_sqrt(int value) {
+	return sqrt(value);
+}
+
+inline float M_sqrt(float value) {
+	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_load_ss(&value)));
+}
+
+inline double M_sqrt(double value) {
+	double ret;
+	auto v = _mm_load_sd(&value);
+	_mm_store_sd(&ret, _mm_sqrt_sd(v, v));
+	return ret;
+}
 
 #define VectorSubtract(a,b,c) {(c)[0]=(a)[0]-(b)[0];(c)[1]=(a)[1]-(b)[1];(c)[2]=(a)[2]-(b)[2];}
 #define VectorAdd(a,b,c) {(c)[0]=(a)[0]+(b)[0];(c)[1]=(a)[1]+(b)[1];(c)[2]=(a)[2]+(b)[2];}
 #define VectorCopy(a,b) {(b)[0]=(a)[0];(b)[1]=(a)[1];(b)[2]=(a)[2];}
 #define VectorClear(a) {(a)[0]=0.0;(a)[1]=0.0;(a)[2]=0.0;}
-
-void VectorMA (const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc);
-
-vec_t _DotProduct (vec3_t v1, vec3_t v2);
-void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorCopy (vec3_t in, vec3_t out);
-
-int VectorCompare (const vec3_t v1, const vec3_t v2);
-float Length (const vec3_t v);
-void CrossProduct (const vec3_t v1, const vec3_t v2, vec3_t cross);
-float VectorNormalize (vec3_t v);		// returns vector length
-void VectorInverse (vec3_t v);
-void VectorScale (const vec3_t in, vec_t scale, vec3_t out);
-int Q_log2(int val);
-
-void R_ConcatRotations (float in1[3][3], float in2[3][3], float out[3][3]);
-void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4]);
-
-// Here are some "manual" INLINE routines for doing floating point to integer conversions
-extern short new_cw, old_cw;
-
-typedef union DLONG {
-	int		i[2];
-	double	d;
-	float	f;
-	} DLONG;
-
-extern DLONG	dlong;
-
-#ifdef _WIN32
-void __inline set_fpu_cw(void)
-{
-_asm	
-	{		wait
-			fnstcw	old_cw
-			wait
-			mov		ax, word ptr old_cw
-			or		ah, 0xc
-			mov		word ptr new_cw,ax
-			fldcw	new_cw
-	}
-}
-
-int __inline quick_ftol(float f)
-{
-	_asm {
-		// Assumes that we are already in chop mode, and only need a 32-bit int
-		fld		DWORD PTR f
-		fistp	DWORD PTR dlong
-	}
-	return dlong.i[0];
-}
-
-void __inline restore_fpu_cw(void)
-{
-	_asm	fldcw	old_cw
-}
-#else
-#define set_fpu_cw() /* */
-#define quick_ftol(f) ftol(f)
-#define restore_fpu_cw() /* */
-#endif
-
-void FloorDivMod (double numer, double denom, int *quotient,
-		int *rem);
-fixed16_t Invert24To16(fixed16_t val);
-int GreatestCommonDivisor (int i1, int i2);
-
-void AngleVectors (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-void AngleVectorsTranspose (const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-#define AngleIVectors	AngleVectorsTranspose
-
-void AngleMatrix (const vec3_t angles, float (*matrix)[4] );
-void AngleIMatrix (const vec3_t angles, float (*matrix)[4] );
-void VectorTransform (const vec3_t in1, float in2[3][4], vec3_t out);
-
-void NormalizeAngles( vec3_t angles );
-void InterpolateAngles( vec3_t start, vec3_t end, vec3_t output, float frac );
-float AngleBetweenVectors( const vec3_t v1, const vec3_t v2 );
-
-
-void VectorMatrix( vec3_t forward, vec3_t right, vec3_t up);
-void VectorAngles( const vec3_t forward, vec3_t angles );
-
-int InvertMatrix( const float * m, float *out );
-
-int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct mplane_s *plane);
-float	anglemod(float a);
-
-
-
-#define BOX_ON_PLANE_SIDE(emins, emaxs, p)	\
-	(((p)->type < 3)?						\
-	(										\
-		((p)->dist <= (emins)[(p)->type])?	\
-			1								\
-		:									\
-		(									\
-			((p)->dist >= (emaxs)[(p)->type])?\
-				2							\
-			:								\
-				3							\
-		)									\
-	)										\
-	:										\
-		BoxOnPlaneSide( (emins), (emaxs), (p)))

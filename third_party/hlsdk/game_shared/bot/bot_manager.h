@@ -1,107 +1,72 @@
-//========= Copyright © 1996-2002, Valve LLC, All rights reserved. ============
-//
-// Purpose: 
-//
-// $NoKeywords: $
-//=============================================================================
+/*
+*
+*   This program is free software; you can redistribute it and/or modify it
+*   under the terms of the GNU General Public License as published by the
+*   Free Software Foundation; either version 2 of the License, or (at
+*   your option) any later version.
+*
+*   This program is distributed in the hope that it will be useful, but
+*   WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+*   General Public License for more details.
+*
+*   You should have received a copy of the GNU General Public License
+*   along with this program; if not, write to the Free Software Foundation,
+*   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*
+*   In addition, as a special exception, the author gives permission to
+*   link the code of this program with the Half-Life Game Engine ("HL
+*   Engine") and Modified Game Libraries ("MODs") developed by Valve,
+*   L.L.C ("Valve").  You must obey the GNU General Public License in all
+*   respects for all of the code used other than the HL Engine and MODs
+*   from Valve.  If you modify this file, you may extend this exception
+*   to your version of the file, but you are not obligated to do so.  If
+*   you do not wish to do so, delete this exception statement from your
+*   version.
+*
+*/
+#pragma once
 
-// Author: Michael S. Booth (mike@turtlerockstudios.com), 2003
+// STL uses exceptions, but we are not compiling with them - ignore warning
+#pragma warning(disable : 4530)
 
-#ifndef BASE_CONTROL_H
-#define BASE_CONTROL_H
-
-#pragma warning( disable : 4530 )					// STL uses exceptions, but we are not compiling with them - ignore warning
-
-#include "extdll.h"
-#include "util.h"
 #include <list>
-#include "GameEvent.h" // Game event enum used by career mode, tutor system, and bots
-
-#ifndef _WIN32
-// DAL <list> undefs max and min 
-#ifndef max
-#define oldmax(a,b) ((a) > (b) ? (a) : (b))
-#endif
-#ifndef min
-#define oldmin(a,b) ((a) < (b) ? (a) : (b))
-#endif
-#endif
-
 
 class CNavArea;
-
-
-//--------------------------------------------------------------------------------------------------------------
 class CGrenade;
 
-/**
- * An ActiveGrenade is a representation of a grenade in the world
- * NOTE: Currently only used for smoke grenade line-of-sight testing
- * @todo Use system allow bots to avoid HE and Flashbangs
- */
-class ActiveGrenade
-{
+class ActiveGrenade {
 public:
-	ActiveGrenade( int weaponID, CGrenade *grenadeEntity );
-
-	void OnEntityGone( void );								///< called when the grenade in the world goes away
-	bool IsValid( void ) const	;							///< return true if this grenade is valid
-	bool IsEntity( CGrenade *grenade ) const	{ return (grenade == m_entity) ? true : false; }
-	int GetID( void ) const										{ return m_id; }
-	const Vector *GetDetonationPosition( void ) const	{ return &m_detonationPosition; }
-	const Vector *GetPosition( void ) const;
-
-private:
-	int m_id;																	///< weapon id
-	CGrenade *m_entity;												///< the entity
-	Vector m_detonationPosition;							///< the location where the grenade detonated (smoke)
-	float m_dieTimestamp;											///< time this should go away after m_entity is NULL
+	int m_id;
+	CGrenade *m_entity;
+	Vector m_detonationPosition;
+	float m_dieTimestamp;
 };
 
 typedef std::list<ActiveGrenade *> ActiveGrenadeList;
 
-
-//--------------------------------------------------------------------------------------------------------------
-/**
- * This class manages all active bots, propagating events to them and updating them.
- */
-class CBotManager 
-{
+class CBotManager {
 public:
-	CBotManager();
+	virtual ~CBotManager() {}
 
-	virtual void ClientDisconnect( CBasePlayer * pPlayer ) = 0;
-	virtual BOOL ClientCommand( CBasePlayer * pPlayer, const char * pcmd ) = 0;
+	virtual void ClientDisconnect(CBasePlayer *pPlayer) = 0;
+	virtual BOOL ClientCommand(CBasePlayer *pPlayer, const char *pcmd) = 0;
 
-	virtual void ServerActivate( void ) = 0;
-	virtual void ServerDeactivate( void ) = 0;
-	virtual void ServerCommand( const char * pcmd ) = 0;
-	virtual void AddServerCommand( const char *cmd ) = 0;
-	virtual void AddServerCommands( void ) = 0;
+	virtual void ServerActivate() = 0;
+	virtual void ServerDeactivate() = 0;
 
-	virtual void RestartRound( void );							///< (EXTEND) invoked when a new round begins
-	virtual void StartFrame( void );							///< (EXTEND) called each frame
+	virtual void ServerCommand(const char *pcmd) = 0;
+	virtual void AddServerCommand(const char *cmd) = 0;
+	virtual void AddServerCommands() = 0;
 
-	const char *GetNavMapFilename( void ) const;				///< return the filename for this map's "nav" file
+	virtual void RestartRound() = 0;
+	virtual void StartFrame() = 0;
 
-	/**
-	 * Invoked when event occurs in the game (some events have NULL entity).
-	 * Events are propogated to all bots.
-	 */
-	virtual void OnEvent( GameEventType event, CBaseEntity *entity = NULL, CBaseEntity *other = NULL );
+	// Events are propogated to all bots.
+	virtual void OnEvent(GameEventType event, CBaseEntity *entity = NULL, CBaseEntity *other = NULL) = 0;		// Invoked when event occurs in the game (some events have NULL entity).
+	virtual unsigned int GetPlayerPriority(CBasePlayer *player) const = 0;						// return priority of player (0 = max pri)
 
-	virtual unsigned int GetPlayerPriority( CBasePlayer *player ) const = 0;	///< return priority of player (0 = max pri)
-	
-
-	void AddGrenade( int type, CGrenade *grenade );				///< add an active grenade to the bot's awareness
-	void RemoveGrenade( CGrenade *grenade );					///< the grenade entity in the world is going away
-	void ValidateActiveGrenades( void );						///< destroy any invalid active grenades
-	void DestroyAllGrenades( void );
-	bool IsLineBlockedBySmoke( const Vector *from, const Vector *to );	///< return true if line intersects smoke volume
-	bool IsInsideSmokeCloud( const Vector *pos );				///< return true if position is inside a smoke cloud
-
-private:
-	ActiveGrenadeList m_activeGrenadeList;///< the list of active grenades the bots are aware of
+public:
+	// the list of active grenades the bots are aware of
+	ActiveGrenadeList m_activeGrenadeList;
 };
-
-#endif
