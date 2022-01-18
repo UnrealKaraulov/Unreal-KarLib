@@ -1330,8 +1330,8 @@ void TextureCoordRanges( s_mesh_t *pmesh, s_texture_t *ptexture  )
 			for (i=0 ; i<pmesh->numtris ; i++) 
 			{
 				float local_min, local_max;
-				local_min = min( pmesh->triangle[i][0].u, min( pmesh->triangle[i][1].u, pmesh->triangle[i][2].u ));
-				local_max = max( pmesh->triangle[i][0].u, max( pmesh->triangle[i][1].u, pmesh->triangle[i][2].u ));
+				local_min = oldmin( pmesh->triangle[i][0].u, oldmin( pmesh->triangle[i][1].u, pmesh->triangle[i][2].u ));
+				local_max = oldmax( pmesh->triangle[i][0].u, oldmax( pmesh->triangle[i][1].u, pmesh->triangle[i][2].u ));
 				if (local_min < min_u) { min_u = local_min; k = i; k_max_u = local_max; }
 				if (local_max > max_u) { max_u = local_max; n = i; n_min_u = local_min; }
 			}
@@ -1363,8 +1363,8 @@ void TextureCoordRanges( s_mesh_t *pmesh, s_texture_t *ptexture  )
 			for (i=0 ; i<pmesh->numtris ; i++) 
 			{
 				float local_min, local_max;
-				local_min = min( pmesh->triangle[i][0].v, min( pmesh->triangle[i][1].v, pmesh->triangle[i][2].v ));
-				local_max = max( pmesh->triangle[i][0].v, max( pmesh->triangle[i][1].v, pmesh->triangle[i][2].v ));
+				local_min = oldmin( pmesh->triangle[i][0].v, oldmin( pmesh->triangle[i][1].v, pmesh->triangle[i][2].v ));
+				local_max = oldmax( pmesh->triangle[i][0].v, oldmax( pmesh->triangle[i][1].v, pmesh->triangle[i][2].v ));
 				if (local_min < min_v) { min_v = local_min; k = i; k_max_v = local_max; }
 				if (local_max > max_v) { max_v = local_max; n = i; n_min_v = local_min; }
 			}
@@ -1414,10 +1414,10 @@ void TextureCoordRanges( s_mesh_t *pmesh, s_texture_t *ptexture  )
 	{
 		for (i=0 ; i<pmesh->numtris ; i++) {
 			for (j = 0; j < 3; j++) {
-				ptexture->max_s = max( pmesh->triangle[i][j].s, ptexture->max_s );
-				ptexture->min_s = min( pmesh->triangle[i][j].s, ptexture->min_s );
-				ptexture->max_t = max( pmesh->triangle[i][j].t, ptexture->max_t );
-				ptexture->min_t = min( pmesh->triangle[i][j].t, ptexture->min_t );
+				ptexture->max_s = oldmax( pmesh->triangle[i][j].s, ptexture->max_s );
+				ptexture->min_s = oldmin( pmesh->triangle[i][j].s, ptexture->min_s );
+				ptexture->max_t = oldmax( pmesh->triangle[i][j].t, ptexture->max_t );
+				ptexture->min_t = oldmin( pmesh->triangle[i][j].t, ptexture->min_t );
 			}
 		}
 	}

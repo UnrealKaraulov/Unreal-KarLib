@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(FakeServerQueries)
+project(UnrealKarLibrary)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -37,7 +37,6 @@ set_target_properties(
         -fexceptions \
         -g \
         -Wall \
-        -Wextra \
         -Werror \
         -fdata-sections \
         -ffunction-sections \

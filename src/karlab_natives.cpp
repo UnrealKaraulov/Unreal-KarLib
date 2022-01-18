@@ -1,9 +1,5 @@
 #define HAVE_STDINT_H
 
-//#ifndef WIN32
-//#include "force_link_glibc_2.5.h"
-//#endif 
-
 #ifndef WIN32
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
@@ -15,9 +11,7 @@
 #include <string>
 #include <stdio.h>
 #include <fstream>
-#include "Header.h"
-
-#include "amxxmodule.h"
+#include "header.h"
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
@@ -37,7 +31,7 @@ bool IsPlayerSafe(int Player)
 	return MF_IsPlayerIngame(Player);
 }
 
-void UTIL_TextMsg(edict_t* pPlayer, char* message)
+void UTIL_TextMsg(edict_t* pPlayer, const char* message)
 {
 	if (g_hTextMsg == 0)
 		g_hTextMsg = GET_USER_MSG_ID(PLID, "TextMsg", NULL);
@@ -61,7 +55,7 @@ void UTIL_TextMsg(edict_t* pPlayer, char* message)
 	*/
 }
 
-void UTIL_TextMsg(int iPlayer, char* message)
+void UTIL_TextMsg(int iPlayer, const char* message)
 {
 	if (!IsPlayer(iPlayer))
 	{
@@ -308,7 +302,7 @@ static cell AMX_NATIVE_CALL init_mini_server(AMX* amx, cell* params)  // 1 param
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL stop_mini_server(AMX* amx, cell* params)
+static cell AMX_NATIVE_CALL stop_mini_server(AMX*, cell*)
 {
 	g_iWaitForListen = 0;
 	g_hMiniServer.stop();

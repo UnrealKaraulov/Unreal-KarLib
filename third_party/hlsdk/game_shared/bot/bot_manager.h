@@ -20,10 +20,10 @@
 #ifndef _WIN32
 // DAL <list> undefs max and min 
 #ifndef max
-#define max(a,b) ((a) > (b) ? (a) : (b))
+#define oldmax(a,b) ((a) > (b) ? (a) : (b))
 #endif
 #ifndef min
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#define oldmin(a,b) ((a) < (b) ? (a) : (b))
 #endif
 #endif
 

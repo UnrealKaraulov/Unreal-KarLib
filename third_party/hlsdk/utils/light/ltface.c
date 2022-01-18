@@ -646,9 +646,9 @@ void LightFace (int surfnum)
 #endif
 					if ( divisor > 1.0 )
 						VectorScale( total, 1/divisor, total );
-					total[0] = max(total[0],0.0);
-					total[1] = max(total[1],0.0);
-					total[2] = max(total[2],0.0);
+					total[0] = oldmax(total[0],0.0);
+					total[1] = oldmax(total[1],0.0);
+					total[2] = oldmax(total[2],0.0);
 				}
 				else
 					VectorCopy( light[ c ], total );

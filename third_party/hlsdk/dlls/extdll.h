@@ -71,10 +71,10 @@ typedef int BOOL;
 #include <stdarg.h>
 #include <string.h> // memset 
 #ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
+#define oldmin(a,b)  (((a) < (b)) ? (a) : (b))
 #endif
 #ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
+#define oldmax(a,b)  (((a) > (b)) ? (a) : (b))
 #endif
 #ifndef _vsnprintf
 #define _vsnprintf(a,b,c,d) vsnprintf(a,b,c,d)

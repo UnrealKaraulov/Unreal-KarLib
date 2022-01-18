@@ -79,9 +79,9 @@ int CHudMOTD :: Draw( float fTime )
 	fElapsed = gHUD.m_flTime - sfLastTime;
 
 	// Don't let time go negative ( level transition? )
-	fElapsed = max( 0.0, fElapsed );
+	fElapsed = oldmax( 0.0, fElapsed );
 	// Don't let time go hugely positive ( first connection to active server ? )
-	fElapsed = min( 1.0, fElapsed );
+	fElapsed = oldmin( 1.0, fElapsed );
 
 	// Remember last timestamp
 	sfLastTime = gHUD.m_flTime;
@@ -139,7 +139,7 @@ int CHudMOTD :: MsgFunc_MOTD( const char *pszName, int iSize, void *pbuf )
 	{
 		m_iFlags |= HUD_ACTIVE;
 
-		MOTD_DISPLAY_TIME = max( 10, CVAR_GET_FLOAT( "motd_display_time" ) );
+		MOTD_DISPLAY_TIME = oldmax( 10, CVAR_GET_FLOAT( "motd_display_time" ) );
 
 		m_flActiveRemaining = MOTD_DISPLAY_TIME;
 

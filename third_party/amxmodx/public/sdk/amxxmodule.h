@@ -25,7 +25,9 @@
 #include <stddef.h> // size_t
 // metamod include files
 #ifdef USE_METAMOD
-#include "../../../src/helper/external_api.h"
+#include <extdll.h>
+#include <meta_api.h>
+#include <h_export.h>
 #endif // #ifdef USE_METAMOD
 
 // DLL Export

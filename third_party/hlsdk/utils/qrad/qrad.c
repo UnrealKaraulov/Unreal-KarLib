@@ -215,7 +215,7 @@ void ReadLightFile (char *filename)
 		texlights[j].filename = filename;
 		file_texlights++;
 
-		num_texlights = max( num_texlights, j+1 );
+		num_texlights = oldmax( num_texlights, j+1 );
 	}		
 	qprintf ("[%i texlights parsed from '%s']\n\n", file_texlights, filename);
 }
@@ -634,7 +634,7 @@ void	SubdividePatch (patch_t *patch)
 				if ( (patch->face_maxs[i] == patch->maxs[i] || patch->face_mins[i] == patch->mins[i] )
 				  && total[i] > minchop )
 				{
-					patch->chop = max( minchop, patch->chop / 2 );
+					patch->chop = oldmax( minchop, patch->chop / 2 );
 					break;
 				}
 
@@ -647,7 +647,7 @@ void	SubdividePatch (patch_t *patch)
 				if ( (newp->face_maxs[i] == newp->maxs[i] || newp->face_mins[i] == newp->mins[i] )
 				  && total[i] > minchop )
 				{
-					newp->chop = max( minchop, newp->chop / 2 );
+					newp->chop = oldmax( minchop, newp->chop / 2 );
 					break;
 				}
 

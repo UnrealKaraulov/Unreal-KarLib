@@ -67,11 +67,11 @@ typedef int BOOL;
 #include <string.h>
 
 #ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
+#define oldmin(a,b)  (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
+#define oldmax(a,b)  (((a) > (b)) ? (a) : (b))
 #endif
 
 #define itoa(a,b,c) sprintf(b, "%d", a) 
