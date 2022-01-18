@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9)
-project(UnrealKarLibrary)
+project(UnrealKarLibrary CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -58,4 +58,4 @@ set_target_properties(
 
 if ("$ENV{CXX}" MATCHES "icpc")
 	set(LINK_FLAGS "${LINK_FLAGS} -static-intel -no-intel-extensions")
-endif
+endif()
