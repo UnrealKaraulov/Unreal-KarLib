@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.9)
 project(UnrealKarLibrary)
 
+
+set_property(GLOBAL PROPERTY CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD_REQUIRED ON)
+set (CMAKE_CXX_FLAGS "-std=c++17 -std=gnu++17")
+
+
 # src
 set(THIRD_PARTY "${CMAKE_SOURCE_DIR}/third_party")
 set(SRC_DIR "${CMAKE_SOURCE_DIR}/src")
@@ -43,6 +50,8 @@ set_target_properties(
         -Werror \
         -fdata-sections \
         -ffunction-sections \
+        -std=c++17  \
+        -std=gnu++17 \
         -Wunknown-pragmas"
 )
 
@@ -65,9 +74,3 @@ else()
 			-no-intel-extensions"
 	)
 endif()
-
-
-
-set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-std=c++17")
