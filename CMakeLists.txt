@@ -6,8 +6,6 @@ ENABLE_LANGUAGE(C)
 set_property(GLOBAL PROPERTY CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
-set (CMAKE_CXX_FLAGS "-std=c++17 -std=gnu++17")
-
 
 # src
 set(THIRD_PARTY "${CMAKE_SOURCE_DIR}/third_party")
@@ -39,13 +37,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "karlib")
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 
-set(FLAGS "-m32 -O3 -pipe -fvisibility-inlines-hidden -fvisibility=hidden -flto ")
+set(FLAGS "-m32 -O3 -std=c++17 -std=gnu++17")
 
 set_target_properties(
         ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
         "${FLAGS} \
         -fexceptions \
-        -Os \
         -Wall \
         -Werror \
         -std=c++17  \
