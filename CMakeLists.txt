@@ -52,6 +52,7 @@ set_target_properties(
         ${PROJECT_NAME} PROPERTIES LINK_FLAGS
         "${FLAGS} \
         -Wl,--gc-sections \
+        -static-intel \
         -static-libstdc++ \
         -static-libgcc"
 )
