@@ -75,7 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="./../third_party/amxmodx/public/sdk/amxxmodule.cpp" />
-    <ClCompile Include="./../third_party/hlsdk/public/interface.cpp" />
+    <ClCompile Include="./../src/interface.cpp" />
     <ClCompile Include="./../src/karlab_natives.cpp" />
     <ClCompile Include="./../src/rehlds_api.cpp" />
   </ItemGroup>

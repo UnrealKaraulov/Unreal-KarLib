@@ -10,7 +10,9 @@
     <ClCompile Include="./../src/rehlds_api.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="./../third_party/hlsdk/public/interface.cpp" />
+	<ClCompile Include="./../src/interface.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h">
