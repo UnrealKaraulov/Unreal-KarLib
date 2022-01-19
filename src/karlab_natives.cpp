@@ -63,7 +63,7 @@ void UTIL_TextMsg(int iPlayer, const char* message)
 {
 	if (!IsPlayerSafe(iPlayer))
 	{
-		MF_Log("%s",message);
+		MF_Log("%s", message);
 		return;
 	}
 	edict_t* pPlayer = MF_GetPlayerEdict(iPlayer);
@@ -76,7 +76,7 @@ void UTIL_TextMsg(int iPlayer, std::string message)
 {
 	if (!IsPlayerSafe(iPlayer))
 	{
-		MF_Log("%s", message);
+		MF_Log("%s", message.c_str());
 		return;
 	}
 	UTIL_TextMsg(iPlayer, message.c_str());
