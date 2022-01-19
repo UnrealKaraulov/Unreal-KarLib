@@ -25,8 +25,6 @@ link_directories(${THIRD_PARTY}/linux32)
 INCLUDE(CheckIncludeFile)
 INCLUDE(CheckIncludeFileCXX)
 
-CHECK_INCLUDE_FILE(stdint.h     HAVE_STDINT_H)
-
 file(GLOB_RECURSE SOURCE_FILES ${SRC_DIR}/*.cpp ${AMXXSDK}/sdk/*.cpp)
 add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
@@ -34,7 +32,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "karlib")
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX "_amxx_i386.so")
 
 set(CMAKE_CXX_FLAGS "-m32 -std=gnu++17 -std=c++17 -O3 -fPIC -fpermissive -D_GLIBCXX_USE_CXX11_ABI=0 -D_GLIBCXX_USE_CXX17_ABI=0 \
-					 -D_snprintf=snprintf -D_vsnprintf=vsnprintf -D_STDINT -D_strnicmp=strncasecmp -D_stricmp=strcasecmp " )
+					 -D_snprintf=snprintf -DHAVE_STDINT_H -D_vsnprintf=vsnprintf -D_STDINT -D_strnicmp=strncasecmp -D_stricmp=strcasecmp " )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fPIC")
 
