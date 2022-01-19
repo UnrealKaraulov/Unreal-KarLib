@@ -396,6 +396,21 @@ static cell AMX_NATIVE_CALL test_view_angles(AMX* amx, cell* params) // 1 parara
 	return 0;
 }
 
+std::vector<std::string> ResourceCheckList;
+
+
+static cell AMX_NATIVE_CALL re_rechecker_add(AMX* amx, cell* params) // 2 params
+{
+	int iLen;
+	const char* resname = MF_GetAmxString(amx, params[1], 0, &iLen);
+	if (resname && iLen)
+	{
+		ResourceCheckList.push_back(resname);
+	}
+	return 0;
+}
+
+
 AMX_NATIVE_INFO my_Natives[] =
 {
 	{"test_download_speed",	test_download_speed},
@@ -405,6 +420,7 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"stop_mini_server",	stop_mini_server},
 	{"mini_server_res",	mini_server_res},
 	{"test_view_angles",	test_view_angles},
+	{"re_rechecker_add",	re_rechecker_add},
 	{NULL,			NULL},
 };
 
@@ -415,9 +431,8 @@ void OnPluginsLoaded()
 
 bool SV_CheckConsistencyResponse_hook(IRehldsHook_SV_CheckConsistencyResponse * t,IGameClient* client, resource_t* res, uint32 hash)
 {
-	MF_Log("Resource check: %s\n", res->szFileName);
-	t->callNext(client, res, hash);
-	return true;
+	MF_Log("Resource check: %s - %X\n", res->szFileName, hash);
+	return t->callNext(client, res, hash);
 }
 
 
