@@ -1,10 +1,7 @@
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "interface.h"
 
+#include <stdio.h>
+#include <string.h>
 
 #if !defined ( _WIN32 )
 // Linux doesn't have this function so this emulates its functionality
@@ -39,7 +36,7 @@ void *GetModuleHandle(const char *name)
 // ------------------------------------------------------------------------------------ //
 // InterfaceReg.
 // ------------------------------------------------------------------------------------ //
-InterfaceReg *InterfaceReg::s_pInterfaceRegs = 0;
+InterfaceReg *InterfaceReg::s_pInterfaceRegs = NULL;
 
 
 InterfaceReg::InterfaceReg( InstantiateInterfaceFn fn, const char *pName ) : m_pName(pName)
@@ -74,7 +71,7 @@ EXPORT_FUNCTION IBaseInterface *CreateInterface( const char *pName, int *pReturn
 	{
 		*pReturnCode = IFACE_FAILED;
 	}
-	return 0;
+	return NULL;
 }
 
 #ifdef LINUX

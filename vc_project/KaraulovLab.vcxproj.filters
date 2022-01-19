@@ -10,6 +10,7 @@
     <ClCompile Include="./../src/rehlds_api.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="./../third_party/hlsdk/public/interface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h">
@@ -18,6 +19,7 @@
     <ClInclude Include="./../src/k_rehlds_api.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\karlab_natives.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source">

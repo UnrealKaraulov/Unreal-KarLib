@@ -41,7 +41,7 @@ bool RehldsApi_TryInit(CSysModule *engineModule, char *failureReason)
 		sprintf(failureReason, "REHLDS Api minor version mismatch; expected at least %d, real %d\n", REHLDS_API_VERSION_MINOR, minorVersion);
 		return false;
 	}
-
+	
 	g_RehldsFuncs = g_RehldsApi->GetFuncs();
 	g_RehldsHookchains = g_RehldsApi->GetHookchains();
 	g_RehldsSvs = g_RehldsApi->GetServerStatic();

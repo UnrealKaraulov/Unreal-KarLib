@@ -1,5 +1,4 @@
 #pragma once
-
 #include <rehlds_api.h>
 
 extern IRehldsApi* g_RehldsApi;
@@ -9,3 +8,4 @@ extern IRehldsServerStatic* g_RehldsSvs;
 extern IRehldsServerData* g_RehldsSv;
 
 extern bool RehldsApi_Init();
+

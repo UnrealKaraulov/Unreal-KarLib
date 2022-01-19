@@ -20,7 +20,6 @@
 
 #ifndef INTERFACE_H
 #define INTERFACE_H
-
 #if !defined ( _WIN32 )
 
 #include <dlfcn.h> // dlopen,dlclose, et al

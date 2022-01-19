@@ -26,17 +26,13 @@ int g_hTextMsg = 0;
 
 bool IsPlayer(int Player)
 {
+	
 	return Player >= 1 && Player <= gpGlobals->maxClients;
 }
 
 bool IsPlayerSafe(int Player)
 {
 	return IsPlayer(Player) && MF_IsPlayerIngame(Player);
-}
-
-void UTIL_TextMsg(int iPlayer, std::string message)
-{
-	UTIL_TextMsg(iPlayer, message.c_str());
 }
 
 void UTIL_TextMsg(edict_t* pPlayer, const char* message)
@@ -67,12 +63,25 @@ void UTIL_TextMsg(int iPlayer, const char* message)
 {
 	if (!IsPlayerSafe(iPlayer))
 	{
+		MF_Log("%s",message);
 		return;
 	}
 	edict_t* pPlayer = MF_GetPlayerEdict(iPlayer);
 	
 	UTIL_TextMsg(pPlayer, message);
 }
+
+
+void UTIL_TextMsg(int iPlayer, std::string message)
+{
+	if (!IsPlayerSafe(iPlayer))
+	{
+		MF_Log("%s", message);
+		return;
+	}
+	UTIL_TextMsg(iPlayer, message.c_str());
+}
+
 
 
 httplib::Server g_hMiniServer;
@@ -405,9 +414,21 @@ void OnPluginsLoaded()
 	g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_STRING, FP_DONE);
 }
 
+bool SV_CheckConsistencyResponse_hook(IRehldsHook_SV_CheckConsistencyResponse * t,IGameClient* client, resource_t* res, uint32 hash)
+{
+	MF_Log("Resource check: %s\n", res->szFileName);
+	t->callNext(client, res, hash);
+	return true;
+}
+
+
 void OnAmxxAttach() // Server start
 {
-	RehldsApi_Init();
+	if (RehldsApi_Init())
+	{
+		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook);
+	}
+	
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);

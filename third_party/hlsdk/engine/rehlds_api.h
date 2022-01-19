@@ -33,10 +33,11 @@
 #include "FlightRecorder.h"
 #include "interface.h"
 #include "model.h"
+#include "ObjectList.h"
 #include "pr_dlls.h"
 
 #define REHLDS_API_VERSION_MAJOR 3
-#define REHLDS_API_VERSION_MINOR 11
+#define REHLDS_API_VERSION_MINOR 3
 
 //Steam_NotifyClientConnect hook
 typedef IHookChain<qboolean, IGameClient*, const void*, unsigned int> IRehldsHook_Steam_NotifyClientConnect;
@@ -187,44 +188,12 @@ typedef IHookChain<int, enum sv_delta_s, IGameClient *, struct packet_entities_s
 typedef IHookChainRegistry<int, enum sv_delta_s, IGameClient *, struct packet_entities_s *, struct sizebuf_s *> IRehldsHookRegistry_SV_CreatePacketEntities;
 
 //SV_EmitSound2 hook
-typedef IHookChain<bool, edict_t *, IGameClient *, int, const char *, float, float, int, int, int, const float *> IRehldsHook_SV_EmitSound2;
-typedef IHookChainRegistry<bool, edict_t *, IGameClient *, int, const char *, float, float, int, int, int, const float *> IRehldsHookRegistry_SV_EmitSound2;
+typedef IHookChain<bool, edict_t *, IGameClient *, int, const char*, float, float, int, int, int, const float*> IRehldsHook_SV_EmitSound2;
+typedef IHookChainRegistry<bool, edict_t *, IGameClient *, int, const char*, float, float, int, int, int, const float*> IRehldsHookRegistry_SV_EmitSound2;
 
 //CreateFakeClient hook
 typedef IHookChain<edict_t *, const char *> IRehldsHook_CreateFakeClient;
 typedef IHookChainRegistry<edict_t *, const char *> IRehldsHookRegistry_CreateFakeClient;
-
-//SV_CheckConnectionLessRateLimits
-typedef IHookChain<bool, netadr_t &, const uint8_t *, int> IRehldsHook_SV_CheckConnectionLessRateLimits;
-typedef IHookChainRegistry<bool, netadr_t &, const uint8_t *, int> IRehldsHookRegistry_SV_CheckConnectionLessRateLimits;
-
-//SV_Frame hook
-typedef IVoidHookChain<> IRehldsHook_SV_Frame;
-typedef IVoidHookChainRegistry<> IRehldsHookRegistry_SV_Frame;
-
-//SV_ShouldSendConsistencyList hook
-typedef IHookChain<bool, IGameClient *, bool> IRehldsHook_SV_ShouldSendConsistencyList;
-typedef IHookChainRegistry<bool, IGameClient *, bool> IRehldsHookRegistry_SV_ShouldSendConsistencyList;
-
-//GetEntityInit hook
-typedef IHookChain<ENTITYINIT, char *> IRehldsHook_GetEntityInit;
-typedef IHookChainRegistry<ENTITYINIT, char *> IRehldsHookRegistry_GetEntityInit;
-
-//SV_EmitPings hook
-typedef IHookChain<void, IGameClient *, sizebuf_t *> IRehldsHook_SV_EmitPings;
-typedef IHookChainRegistry<void, IGameClient *, sizebuf_t *> IRehldsHookRegistry_SV_EmitPings;
-
-//ED_Alloc hook
-typedef IHookChain<edict_t *> IRehldsHook_ED_Alloc;
-typedef IHookChainRegistry<edict_t *> IRehldsHookRegistry_ED_Alloc;
-
-//ED_Free hook
-typedef IVoidHookChain<edict_t *> IRehldsHook_ED_Free;
-typedef IVoidHookChainRegistry<edict_t *> IRehldsHookRegistry_ED_Free;
-
-//Con_Printf hook
-typedef IHookChain<void, const char *> IRehldsHook_Con_Printf;
-typedef IHookChainRegistry<void, const char *> IRehldsHookRegistry_Con_Printf;
 
 class IRehldsHookchains {
 public:
@@ -269,14 +238,6 @@ public:
 	virtual IRehldsHookRegistry_SV_CreatePacketEntities* SV_CreatePacketEntities() = 0;
 	virtual IRehldsHookRegistry_SV_EmitSound2* SV_EmitSound2() = 0;
 	virtual IRehldsHookRegistry_CreateFakeClient* CreateFakeClient() = 0;
-	virtual IRehldsHookRegistry_SV_CheckConnectionLessRateLimits* SV_CheckConnectionLessRateLimits() = 0;
-	virtual IRehldsHookRegistry_SV_Frame* SV_Frame() = 0;
-	virtual IRehldsHookRegistry_SV_ShouldSendConsistencyList* SV_ShouldSendConsistencyList() = 0;
-	virtual IRehldsHookRegistry_GetEntityInit* GetEntityInit() = 0;
-	virtual IRehldsHookRegistry_SV_EmitPings* SV_EmitPings() = 0;
-	virtual IRehldsHookRegistry_ED_Alloc* ED_Alloc() = 0;
-	virtual IRehldsHookRegistry_ED_Free* ED_Free() = 0;
-	virtual IRehldsHookRegistry_Con_Printf* Con_Printf() = 0;
 };
 
 struct RehldsFuncs_t {
@@ -313,7 +274,7 @@ struct RehldsFuncs_t {
 	cvar_t*(*GetCvarVars)();
 	int (*SV_GetChallenge)(const netadr_t& adr);
 	void (*SV_AddResource)(resourcetype_t type, const char *name, int size, unsigned char flags, int index);
-	int(*MSG_ReadShort)(void);
+	int(*MSG_ReadShort)();
 	int(*MSG_ReadBuf)(int iSize, void *pbuf);
 	void(*MSG_WriteBuf)(sizebuf_t *sb, int iSize, void *buf);
 	void(*MSG_WriteByte)(sizebuf_t *sb, int c);
@@ -328,6 +289,13 @@ struct RehldsFuncs_t {
 	bool(*SV_EmitSound2)(edict_t *entity, IGameClient *receiver, int channel, const char *sample, float volume, float attenuation, int flags, int pitch, int emitFlags, const float *pOrigin);
 	void(*SV_UpdateUserInfo)(IGameClient *pGameClient);
 	bool(*StripUnprintableAndSpace)(char *pch);
+	void(*Cmd_RemoveCmd)(const char *cmd_name);
+	void(*GetCommandMatches)(const char *string, ObjectList *pMatchList);
+	bool(*AddExtDll)(void *hModule);
+	void(*AddCvarListener)(const char *var_name, cvar_callback_t func);
+	void(*RemoveExtDll)(void *hModule);
+	void(*RemoveCvarListener)(const char *var_name, cvar_callback_t func);
+	ENTITYINIT(*GetEntityInit)(char *pszClassName);
 };
 
 class IRehldsApi {

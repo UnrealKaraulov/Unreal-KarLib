@@ -57,25 +57,8 @@
 
 #define BIT(n) (1<<(n))
 
-#ifdef HAVE_STRONG_TYPEDEF
-enum class string_t: unsigned int {};
-#else
+// From engine/pr_comp.h;
 typedef unsigned int string_t;
-#endif
-
-typedef int EOFFSET;
-typedef int BOOL;
-typedef unsigned char byte;
-typedef unsigned short word;
-#define _DEF_BYTE_
-
-#ifndef __cplusplus
-	#undef true
-	#undef false
-	typedef enum {false, true} qboolean;
-#else
-	typedef int qboolean;
-#endif // #ifndef __cplusplus
 
 // From engine/server.h
 typedef enum sv_delta_s
