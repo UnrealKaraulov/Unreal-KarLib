@@ -427,11 +427,11 @@ void OnAmxxAttach() // Server start
 	if (RehldsApi_Init())
 	{
 		MF_Log("%s\n", "RehldsApi_Init");
-		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_UNINTERRUPTABLE);
+		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_DEFAULT);
 	}
 	else
 	{
-		MF_Log("%s\n", "RehldsApi_Init");
+		MF_Log("%s\n", "RehldsApi_Init BABAD");
 	}
 	
 	MF_AddNatives(my_Natives);
