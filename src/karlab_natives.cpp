@@ -427,7 +427,7 @@ void OnAmxxAttach() // Server start
 	if (RehldsApi_Init())
 	{
 		MF_Log("%s\n", "RehldsApi_Init");
-		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_DEFAULT + 1);
+		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_UNINTERRUPTABLE);
 	}
 	else
 	{
