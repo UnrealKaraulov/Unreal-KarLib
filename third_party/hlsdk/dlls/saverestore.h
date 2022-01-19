@@ -77,7 +77,7 @@ typedef struct
 	unsigned short		size;
 	unsigned short		token;
 	char				*pData;
-} HEADER;
+} bHEADER;
 
 class CRestore : public CSaveRestoreBuffer
 {
@@ -101,7 +101,7 @@ private:
 	int		BufferSkipZString( void );
 	int		BufferCheckZString( const char *string );
 
-	void	BufferReadHeader( HEADER *pheader );
+	void	BufferReadHeader( bHEADER *pheader );
 
 	int		m_global;		// Restoring a global entity?
 	BOOL	m_precache;
