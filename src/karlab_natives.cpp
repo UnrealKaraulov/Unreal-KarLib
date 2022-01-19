@@ -26,7 +26,6 @@ int g_hTextMsg = 0;
 
 bool IsPlayer(int Player)
 {
-	
 	return Player >= 1 && Player <= gpGlobals->maxClients;
 }
 
@@ -424,9 +423,15 @@ bool SV_CheckConsistencyResponse_hook(IRehldsHook_SV_CheckConsistencyResponse * 
 
 void OnAmxxAttach() // Server start
 {
+	MF_Log("%s\n", "OnAmxxAttach");
 	if (RehldsApi_Init())
 	{
-		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook);
+		MF_Log("%s\n", "RehldsApi_Init");
+		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_DEFAULT + 1);
+	}
+	else
+	{
+		MF_Log("%s\n", "RehldsApi_Init");
 	}
 	
 	MF_AddNatives(my_Natives);
