@@ -11,6 +11,7 @@ IRehldsServerData *g_RehldsSv;
 bool RehldsApi_TryInit(CSysModule *engineModule, char *failureReason)
 {
 	if (!engineModule) {
+		sprintf(failureReason, "Failed to locate engineModule\n");
 		return false;
 	}
 
@@ -57,6 +58,7 @@ bool RehldsApi_Init() {
 	const char* szGameDLLModule = GET_GAME_INFO(PLID, GINFO_REALDLL_FULLPATH);
 	CSysModule *engineModule = Sys_LoadModule(szGameDLLModule);
 	if (!RehldsApi_TryInit(engineModule, failReason)) {
+		MF_Log("RehldsApi_Init failed : %s", failReason);
 		return false;
 	}
 	return true;

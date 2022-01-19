@@ -423,17 +423,11 @@ bool SV_CheckConsistencyResponse_hook(IRehldsHook_SV_CheckConsistencyResponse * 
 
 void OnAmxxAttach() // Server start
 {
-	MF_Log("%s\n", "OnAmxxAttach");
 	if (RehldsApi_Init())
 	{
-		MF_Log("%s\n", "RehldsApi_Init");
 		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_DEFAULT);
 	}
-	else
-	{
-		MF_Log("%s\n", "RehldsApi_Init BABAD");
-	}
-	
+
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);
