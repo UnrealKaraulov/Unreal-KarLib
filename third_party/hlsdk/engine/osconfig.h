@@ -176,7 +176,9 @@
 	//inline bool SOCKET_FIONBIO(SOCKET s, int m) { return (ioctl(s, FIONBIO, (int*)&m) == 0); }
 	//inline int SOCKET_MSGLEN(SOCKET s, u_long& r) { return ioctl(s, FIONREAD, (int*)&r); }
 	typedef int SOCKET;
+	#ifndef INVALID_SOCKET
 	#define INVALID_SOCKET (SOCKET)(~0)
+	#endif
 	#define SOCKET_FIONBIO(s, m) ioctl(s, FIONBIO, (char*)&m)
 	#define SOCKET_MSGLEN(s, r) ioctl(s, FIONREAD, (char*)&r)
 	#define SIN_GET_ADDR(saddr, r) r = (saddr)->s_addr
