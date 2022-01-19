@@ -55,11 +55,18 @@ bool RehldsApi_TryInit(CSysModule *engineModule, char *failureReason)
 
 bool RehldsApi_Init() {
 	char failReason[2048];
-	const char* szGameDLLModule = GET_GAME_INFO(PLID, GINFO_REALDLL_FULLPATH);
-	CSysModule *engineModule = Sys_LoadModule(szGameDLLModule);
+#ifdef WIN32
+	CSysModule* engineModule = Sys_LoadModule("swds.dll");
 	if (!RehldsApi_TryInit(engineModule, failReason)) {
 		MF_Log("RehldsApi_Init failed : %s", failReason);
 		return false;
 	}
+#else
+	CSysModule* engineModule = Sys_LoadModule("engine_i486.so");
+	if (!RehldsApi_TryInit(engineModule, failReason)) {
+		MF_Log("RehldsApi_Init failed : %s", failReason);
+		return false;
+	}
+#endif
 	return true;
 }
