@@ -9,6 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C5A8397C-7CCC-4B4E-A005-36EE6E6B872F}</ProjectGuid>
     <RootNamespace>CSTeamChanger</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -54,6 +55,7 @@
       </AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_STDINT_H;_WINDOWS;NDEBUG;_USRDLL;WIN;WIN32;__WIN;__WIN32;_WIN_;_WIN;__WIN32__;_WIN32;_WIN32_;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -80,7 +82,6 @@
     <ClCompile Include="./../src/rehlds_api.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="../src/karlab_natives.h" />
     <ClInclude Include="./../src/httplib.h" />
     <ClInclude Include="./../src/k_rehlds_api.h" />
   </ItemGroup>

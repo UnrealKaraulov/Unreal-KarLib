@@ -178,7 +178,6 @@ typedef int (AMXAPI * AMX_DEBUG)( tagAMX *amx);
 			#define chdir _chdir
 			#define chmod _chmod
 			#define chsize _chsize
-			#define close _close
 			#define cprintf _cprintf
 			#define cputs _cputts
 			#define creat _creat
@@ -231,13 +230,11 @@ typedef int (AMXAPI * AMX_DEBUG)( tagAMX *amx);
 			#define memicmp _memicmp
 			#define mkdir _mkdir
 			#define mktemp _mktemp
-			#define open _open
 			#define outp _outp
 			#define outpw _outpw
 			#define putch _putch
 			#define putenv _putenv
 			#define putw _putw
-			#define read _read
 			#define rmdir _rmdir
 			#define rmtmp _rmtmp
 			#define setmode _setmode
@@ -277,7 +274,6 @@ typedef int (AMXAPI * AMX_DEBUG)( tagAMX *amx);
 			#define wcsrev _wcsrev
 			#define wcsset _wcsset
 			#define wcsupr _wcsupr
-			#define write _write
 			#define y0 _y0
 			#define y1 _y1
 			#define yn _yn

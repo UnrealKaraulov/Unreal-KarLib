@@ -17,7 +17,7 @@ public InitMiniServer27015(Index)
 	init_mini_server(27015)
 }
 
-public mini_server_req(ip[],params[],values[],path[])
+public mini_server_req(const ip[],const params[],const values[],const path[])
 {
 	new player = find_player("d",ip)
 	if (player > 0 && player < 33)
@@ -32,6 +32,11 @@ public mini_server_req(ip[],params[],values[],path[])
 	{
 		mini_server_res(ip,"<center><h1>Only real players can use mini server!</h1></center>")
 	}
+}
+
+public mini_server_fastdl_req(const ip[],const path[])
+{
+	log_amx("user %s request file %s",ip,path);
 }
 
 

@@ -210,10 +210,6 @@ mBOOL os_safe_call(REG_CMD_FN pfn);
 	#define strcasecmp	_stricmp
 	#define strncasecmp	_strnicmp
     #include <io.h>
-    #define open _open
-    #define read _read
-    #define write _write
-    #define close _close
 #endif /* _WIN32 */
 
 #ifdef __GNUC__

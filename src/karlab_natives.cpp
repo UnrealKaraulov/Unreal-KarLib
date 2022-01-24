@@ -16,6 +16,14 @@
 
 #include <util.h>
 #include <net.h>
+#include <algorithm>
+#include <thread>
+#include <mutex>
+#include <vector>
+#include <concurrent_vector.h>
+#define safevector concurrency::concurrent_vector
+
+
 
 
 std::thread g_hSpeedTestThread;
@@ -84,12 +92,11 @@ void UTIL_TextMsg(int iPlayer, std::string message)
 	UTIL_TextMsg(iPlayer, message.c_str());
 }
 
-
-
 httplib::Server g_hMiniServer;
 int g_iWaitForListen = 0;
 int g_iMiniServerPort = 1000;
-int g_hReqForward = 0;
+int g_hReqForward = -1;
+int g_hFastDlForward = -1;
 struct sMiniServerStr_REQ
 {
 	std::string val;
@@ -97,22 +104,74 @@ struct sMiniServerStr_REQ
 	std::string ip;
 	std::string path;
 };
-std::vector<sMiniServerStr_REQ> g_MiniServerReqList;
+safevector<sMiniServerStr_REQ> g_MiniServerReqList;
+
+
+struct sMiniServerStrFastDL_REQ
+{
+	std::string ip;
+	std::string path;
+};
+safevector<sMiniServerStrFastDL_REQ> g_MiniServerReqListFastDL;
 
 struct sMiniServerStr_RES
 {
 	std::string res;
 	std::string ip;
+	bool valid;
 };
-std::vector<sMiniServerStr_RES> g_MiniServerResList;
-/*
-	1. Запросить вызов forward
-	2. После вызова forward последует ответ в виде текста и ip ответа
-*/
+safevector<sMiniServerStr_RES> g_MiniServerResList;
+
+bool g_bStopMiniServerThread = false;
+
+bool g_bAllowFastDLServer = false;
+
+void ReportFastDLNewFileRequest(std::string path,std::string ip)
+{
+	sMiniServerStrFastDL_REQ tmpsMiniServerStr_REQ = sMiniServerStrFastDL_REQ();
+	tmpsMiniServerStr_REQ.ip = ip;
+	tmpsMiniServerStr_REQ.path = path;
+	g_MiniServerReqListFastDL.push_back(tmpsMiniServerStr_REQ);
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	while (g_MiniServerReqListFastDL.size())
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	}
+}
+
+bool fileExists(const std::string& fileName)
+{
+	if (FILE* file = fopen(fileName.c_str(), "r"))
+	{
+		fclose(file);
+		return true;
+	}
+	return false;
+}
+
+char* loadFile(const std::string& fileName, int& length)
+{
+	if (!fileExists(fileName))
+		return NULL;
+	std::ifstream fin(fileName.c_str(), std::ios::binary);
+	long long begin = fin.tellg();
+	fin.seekg(0, std::ios::end);
+	unsigned int size = (unsigned int)((int)fin.tellg() - begin);
+	char* buffer = new char[size];
+	fin.seekg(0, std::ios::beg);
+	fin.read(buffer, size);
+	fin.close();
+	length = (int)size; // surely models will never exceed 2 GB
+	return buffer;
+}
+
+
+std::string g_sGameDir = "/";
+
 void mini_server_thread()
 {
 	g_hMiniServer.new_task_queue = [] { return new httplib::ThreadPool(64); };
-	while (true && g_iWaitForListen != -1)
+	while (true && !g_bStopMiniServerThread)
 	{
 		while (g_iWaitForListen == 0)
 		{
@@ -121,52 +180,138 @@ void mini_server_thread()
 
 		g_hMiniServer.Get("/.*", [](const httplib::Request& req, httplib::Response& res)
 			{
-				std::string params, values;
+				std::string params, values, path = req.path;
 
-				MF_Log("%s\n", ("Req path: " + req.path).c_str());
-
-				for (auto const& s : req.params)
+				if (g_bAllowFastDLServer && req.params.size() == 0)
 				{
-					params += s.first + ";";
-					values += s.second + ";";
-
-					MF_Log("Para:%s vala:%s\n", s.first.c_str(), s.second.c_str());
-				}
-				sMiniServerStr_REQ tmpsMiniServerStr_REQ = sMiniServerStr_REQ();
-				tmpsMiniServerStr_REQ.ip = req.remote_addr;
-				tmpsMiniServerStr_REQ.par = params;
-				tmpsMiniServerStr_REQ.val = values;
-				tmpsMiniServerStr_REQ.path = req.path;
-				g_MiniServerReqList.push_back(tmpsMiniServerStr_REQ);
-				int maxwait = 50;
-				while (maxwait > 0)
-				{
-					maxwait--;
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
-					for (unsigned int i = 0; i < g_MiniServerResList.size(); i++)
+					while (path.find("//") == 0)
+						path.erase(path.begin());
+					if (path.size() > 64)
 					{
-						if (g_MiniServerResList[i].ip == req.remote_addr)
+
+					}
+					else if (path.find("..") != std::string::npos)
+					{
+						res.status = 404;
+						res.set_content("404 - fucking hacker", "text/plain");
+						return;
+					}
+					else if (path.find("/gfx/") == 0
+						|| path.find("/maps/") == 0
+						|| path.find("/overviews/") == 0
+						|| path.find("/sound/") == 0
+						|| path.find("/sprites/") == 0
+						|| path.find("/models/") == 0 ||
+						(path.rfind("/") == 0 && path.find(".wad") != std::string::npos))
+					{
+						ReportFastDLNewFileRequest(path, req.remote_addr);
+
+						const size_t DATA_CHUNK_SIZE = 2048;
+						char* filedata = NULL;
+						int len = 0;
+
+						if (fileExists(g_sGameDir + path))
 						{
-							res.set_content(g_MiniServerResList[i].res, "text/html");
-							g_MiniServerResList.erase(g_MiniServerResList.begin() + i);
+							filedata = loadFile(g_sGameDir + path, len);
+						}
+						else if (fileExists(g_sGameDir + "/../valve" + path))
+						{
+							filedata = loadFile(g_sGameDir + "/../valve" + path, len);
+						}
+						else
+						{
+							res.status = 404;
+							res.set_content("404 - no file found at server", "text/plain");
+							return;
+						}
+
+						if (len > 0 && filedata != NULL)
+						{
+							res.set_content_provider(
+								len,
+								"application/octet-stream",
+								[filedata](size_t offset, size_t length, httplib::DataSink& sink) {
+									sink.write(&filedata[offset], std::min(length, (size_t)2048));
+									return true;
+								},
+								[filedata](bool success) {
+									delete[] filedata; });
+
+							return;
+						}
+						else
+						{
+							res.status = 404;
+							res.set_content("404 - error while load file", "text/plain");
+							if (filedata != NULL)
+								delete[] filedata;
+							filedata = NULL;
 							return;
 						}
 					}
 				}
-				if (maxwait == 0)
+				if (g_hReqForward != -1 && g_hFastDlForward != -1)
 				{
-					res.set_content("No response found", "text/plain");
+					if (req.params.size())
+					{
+						for (auto const& s : req.params)
+						{
+							params += s.first + ";";
+							values += s.second + ";";
+
+						}
+					}
+					sMiniServerStr_REQ tmpsMiniServerStr_REQ = sMiniServerStr_REQ();
+					tmpsMiniServerStr_REQ.ip = req.remote_addr;
+					tmpsMiniServerStr_REQ.par = params;
+					tmpsMiniServerStr_REQ.val = values;
+					tmpsMiniServerStr_REQ.path = path;
+					g_MiniServerReqList.push_back(tmpsMiniServerStr_REQ);
+					int maxwait = 100;
+					while (maxwait > 0)
+					{
+						std::this_thread::sleep_for(std::chrono::milliseconds(50));
+						if (maxwait > 0)
+						{
+							for (auto& response : g_MiniServerResList)
+							{
+								if (response.valid)
+								{
+									if (response.ip == req.remote_addr)
+									{
+										res.set_content(response.res, "text/html");
+										response.valid = false;
+										return;
+									}
+								}
+							}
+						}
+						maxwait--;
+					}
+
+					if (maxwait == 0)
+					{
+						res.status = 404;
+						res.set_content("No response found", "text/plain");
+					}
+				}
+				else
+				{
+					res.status = 404;
+					res.set_content("Web server not satarted", "text/plain");
 				}
 			});
+
 		g_hMiniServer.listen("0.0.0.0", g_iMiniServerPort);
 		g_iWaitForListen = 0;
 	}
 }
 
+bool g_bStopSpeedTestThread = false;
 
 void download_speed_thread()
 {
-	while (true && g_iSpeedTestPart != -1)
+	while (true && !g_bStopSpeedTestThread)
 	{
 		if (g_iSpeedTestPart == 1)
 		{
@@ -216,11 +361,26 @@ void StartFrame(void)
 {
 	if (g_MiniServerReqList.size() > 0)
 	{
-		for (const auto& s : g_MiniServerReqList)
+		if (g_hReqForward != -1)
 		{
-			MF_ExecuteForward(g_hReqForward, s.ip.c_str(), s.par.c_str(), s.val.c_str(), s.path.c_str());
+			for (const auto& s : g_MiniServerReqList)
+			{
+				MF_ExecuteForward(g_hReqForward, s.ip.c_str(), s.par.c_str(), s.val.c_str(), s.path.c_str());
+			}
 		}
 		g_MiniServerReqList.clear();
+	}
+
+	if (g_MiniServerReqListFastDL.size() > 0)
+	{
+		if (g_hFastDlForward != -1)
+		{
+			for (const auto& s : g_MiniServerReqListFastDL)
+			{
+				MF_ExecuteForward(g_hFastDlForward, s.ip.c_str(), s.path.c_str());
+			}
+		}
+		g_MiniServerReqListFastDL.clear();
 	}
 
 	if (g_iSpeedTestPart >= 2)
@@ -271,8 +431,8 @@ static cell AMX_NATIVE_CALL print_sys_info(AMX* amx, cell* params) // 1 pararam
 		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
 		return 0;
 	}
-	char tmpSysInfoPrint[256];
 #ifndef WIN32
+	char tmpSysInfoPrint[256];
 	/* Conversion constants. */
 	const long minute = 60;
 	const long hour = minute * 60;
@@ -337,6 +497,17 @@ static cell AMX_NATIVE_CALL mini_server_res(AMX* amx, cell* params) // 2 params
 	sMiniServerStr_RES tmpsMiniServerStr_RES = sMiniServerStr_RES();
 	tmpsMiniServerStr_RES.ip = ip;
 	tmpsMiniServerStr_RES.res = res;
+	tmpsMiniServerStr_RES.valid = true;
+	for (unsigned int i = 0; i < g_MiniServerResList.size(); i++)
+	{
+		if (!g_MiniServerResList[i].valid)
+		{
+			g_MiniServerResList[i].ip = ip;
+			g_MiniServerResList[i].res = res;
+			g_MiniServerResList[i].valid = true;
+			return 0;
+		}
+	}
 	g_MiniServerResList.push_back(tmpsMiniServerStr_RES);
 	return 0;
 }
@@ -461,6 +632,19 @@ void xMSG_EndBitWriting()
 	}
 }
 
+static cell AMX_NATIVE_CALL activate_fastdl_server(AMX* amx, cell* params) // 1 pararam
+{
+	g_bAllowFastDLServer = true;
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL deactivate_fastdl_server(AMX* amx, cell* params) // 1 pararam
+{
+	g_bAllowFastDLServer = false;
+	return 0;
+}
+
+
 AMX_NATIVE_INFO my_Natives[] =
 {
 	{"test_download_speed",	test_download_speed},
@@ -470,12 +654,15 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"stop_mini_server",	stop_mini_server},
 	{"mini_server_res",	mini_server_res},
 	{"test_view_angles",	test_view_angles},
+	{"activate_fastdl_server",	activate_fastdl_server},
+	{"deactivate_fastdl_server",	deactivate_fastdl_server},
 	{NULL,			NULL},
 };
 
 void OnPluginsLoaded()
 {
 	g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_STRING, FP_STRING, FP_DONE);
+	g_hFastDlForward = MF_RegisterForward("mini_server_fastdl_req", ET_IGNORE, FP_STRING, FP_STRING, FP_DONE);
 }
 
 bool g_initialized = false;
@@ -486,16 +673,17 @@ int	DispatchSpawnPre(edict_t* pent)
 	{
 		RETURN_META_VALUE(MRES_IGNORED, 0);
 	}
-	float temp[3];
 
 	g_initialized = true;
-	
+
 	RETURN_META_VALUE(MRES_IGNORED, 0);
 }
 
 
 void ServerDeactivate_Post()
 {
+	g_hReqForward = -1;
+	g_hFastDlForward = -1;
 	g_initialized = false;
 	RETURN_META(MRES_IGNORED);
 }
@@ -509,8 +697,12 @@ void OnAmxxAttach() // Server start
 	RehldsApi_Init();
 	if (RehldsInitialized)
 	{
-		
+
 	}
+
+	g_sGameDir = GET_GAME_INFO(PLID, GINFO_GAMEDIR);
+	if (g_sGameDir.back() == '\\' || g_sGameDir.back() == '/')
+		g_sGameDir.pop_back();
 }
 
 void OnAmxxDetach() // Server stop
@@ -518,5 +710,10 @@ void OnAmxxDetach() // Server stop
 	g_hTextMsg = 0;
 	g_iSpeedTestPart = -1;
 	g_iWaitForListen = -1;
+	g_bStopSpeedTestThread = true;
+	g_bStopSpeedTestThread = true;
+	g_hMiniServer.stop();
+	g_hSpeedTestThread.join();
+	g_hMiniServerThread.join();
 }
 
