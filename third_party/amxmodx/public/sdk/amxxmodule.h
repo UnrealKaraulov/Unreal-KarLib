@@ -28,7 +28,6 @@
 #endif // #ifdef USE_METAMOD
 
 #include <cbase.h>
-
 // ***** AMXX stuff *****
 
 // module interface version was 1

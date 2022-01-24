@@ -48,10 +48,12 @@ bool RehldsApi_TryInit(CSysModule *engineModule, char *failureReason)
 	g_RehldsSvs = g_RehldsApi->GetServerStatic();
 	g_RehldsSv = g_RehldsApi->GetServerData();
 
+	
+
 	return true;
 }
 
-
+bool RehldsInitialized = false;
 
 bool RehldsApi_Init() {
 	char failReason[2048];
@@ -68,5 +70,6 @@ bool RehldsApi_Init() {
 		return false;
 	}
 #endif
+	RehldsInitialized = true;
 	return true;
 }

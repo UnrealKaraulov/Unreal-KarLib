@@ -7,17 +7,17 @@ public plugin_init() {
 	register_concmd("test_speed","InitDownload", ADMIN_RCON, "InitDownload")
 	register_concmd("test_info","InitTestInfo", ADMIN_RCON, "InitTestInfo")
 	register_concmd("test_regex","InitTestRegex", ADMIN_RCON, "InitTestRegex")
-	register_concmd("startserver8080","InitMiniServer8080", ADMIN_RCON, "InitTestInfo")
+	register_concmd("startserver27015","InitMiniServer27015", ADMIN_RCON, "InitTestInfo")
 	register_concmd("test_view_angles","PrintViewAngles", ADMIN_RCON, "PrintViewAngles")
 	
 }
 
-public InitMiniServer8080(Index)
+public InitMiniServer27015(Index)
 {
-	init_mini_server(8080)
+	init_mini_server(27015)
 }
 
-public mini_server_req(ip[],params[],values[])
+public mini_server_req(ip[],params[],values[],path[])
 {
 	new player = find_player("d",ip)
 	if (player > 0 && player < 33)
@@ -25,7 +25,7 @@ public mini_server_req(ip[],params[],values[])
 		new playername[64]
 		new buf[256]
 		get_user_name(player,playername,charsmax(playername))
-		formatex(buf,charsmax(buf),"<center><h1> Hello %s, you use mini server from %s ip!</h1><div/> Your request value = %s ----- %s</center>",playername,ip,params,values)
+		formatex(buf,charsmax(buf),"<center><h1> Hello %s, you use mini server from %s ip!</h1><div/> Your request value = %s ----- %s</center><div/> Requ path: %s ",playername,ip,params,values, path)
 		mini_server_res(ip,buf)
 	}
 	else 

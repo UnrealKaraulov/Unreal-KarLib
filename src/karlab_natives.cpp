@@ -3,7 +3,6 @@
 #include <sys/utsname.h>
 #endif
 
-
 #include "httplib.h"
 #include <stdlib.h>
 #include <string>
@@ -14,6 +13,10 @@
 #include <amxxmodule.h>
 
 #include "k_rehlds_api.h"
+
+#include <util.h>
+#include <net.h>
+
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
@@ -66,7 +69,7 @@ void UTIL_TextMsg(int iPlayer, const char* message)
 		return;
 	}
 	edict_t* pPlayer = MF_GetPlayerEdict(iPlayer);
-	
+
 	UTIL_TextMsg(pPlayer, message);
 }
 
@@ -92,6 +95,7 @@ struct sMiniServerStr_REQ
 	std::string val;
 	std::string par;
 	std::string ip;
+	std::string path;
 };
 std::vector<sMiniServerStr_REQ> g_MiniServerReqList;
 
@@ -115,19 +119,24 @@ void mini_server_thread()
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 
-		g_hMiniServer.Get("/", [](const httplib::Request& req, httplib::Response& res)
+		g_hMiniServer.Get("/.*", [](const httplib::Request& req, httplib::Response& res)
 			{
 				std::string params, values;
+
+				MF_Log("%s\n", ("Req path: " + req.path).c_str());
 
 				for (auto const& s : req.params)
 				{
 					params += s.first + ";";
 					values += s.second + ";";
+
+					MF_Log("Para:%s vala:%s\n", s.first.c_str(), s.second.c_str());
 				}
 				sMiniServerStr_REQ tmpsMiniServerStr_REQ = sMiniServerStr_REQ();
 				tmpsMiniServerStr_REQ.ip = req.remote_addr;
 				tmpsMiniServerStr_REQ.par = params;
 				tmpsMiniServerStr_REQ.val = values;
+				tmpsMiniServerStr_REQ.path = req.path;
 				g_MiniServerReqList.push_back(tmpsMiniServerStr_REQ);
 				int maxwait = 50;
 				while (maxwait > 0)
@@ -149,7 +158,6 @@ void mini_server_thread()
 					res.set_content("No response found", "text/plain");
 				}
 			});
-
 		g_hMiniServer.listen("0.0.0.0", g_iMiniServerPort);
 		g_iWaitForListen = 0;
 	}
@@ -210,7 +218,7 @@ void StartFrame(void)
 	{
 		for (const auto& s : g_MiniServerReqList)
 		{
-			MF_ExecuteForward(g_hReqForward, s.ip.c_str(), s.par.c_str(), s.val.c_str());
+			MF_ExecuteForward(g_hReqForward, s.ip.c_str(), s.par.c_str(), s.val.c_str(), s.path.c_str());
 		}
 		g_MiniServerReqList.clear();
 	}
@@ -301,7 +309,7 @@ static cell AMX_NATIVE_CALL print_sys_info(AMX* amx, cell* params) // 1 pararam
 	*/
 	UTIL_TextMsg(index, "Win32 not supported!");
 #endif
-	
+
 	return 0;
 }
 
@@ -336,7 +344,7 @@ static cell AMX_NATIVE_CALL mini_server_res(AMX* amx, cell* params) // 2 params
 static cell AMX_NATIVE_CALL test_regex_req(AMX* amx, cell* params) // 1 pararam
 {
 	int index = params[1];
-	if (!IsPlayerSafe(index))
+	if (index == 0 || !IsPlayerSafe(index))
 	{
 		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
 		return 0;
@@ -392,24 +400,66 @@ static cell AMX_NATIVE_CALL test_view_angles(AMX* amx, cell* params) // 1 parara
 
 	UTIL_TextMsg(index, msg);
 
-	
+
 	return 0;
 }
 
-std::vector<std::string> ResourceCheckList;
 
+#define xBIT(ab)            (1<<(ab))
+#define xBITSUM(ab)        (xBIT(ab)-1)
+#define xRESOURCE_INDEX_BITS	12
 
-static cell AMX_NATIVE_CALL re_rechecker_add(AMX* amx, cell* params) // 2 params
+unsigned int x_iWritingBits = 0;
+unsigned int x_iCurrentByte = 0;
+
+void xMSG_StartBitWriting()
 {
-	int iLen;
-	const char* resname = MF_GetAmxString(amx, params[1], 0, &iLen);
-	if (resname && iLen)
-	{
-		ResourceCheckList.push_back(resname);
-	}
-	return 0;
+	x_iWritingBits = 0;
+	x_iCurrentByte = 0;
 }
 
+int num = 2;
+void xMSG_WriteBits(unsigned int iValue, unsigned int iBits)
+{
+	x_iCurrentByte |= ((iValue & xBITSUM(iBits)) << x_iWritingBits);
+	x_iWritingBits += iBits;
+
+	while (x_iWritingBits >= 8)
+	{
+		WRITE_BYTE(x_iCurrentByte & xBITSUM(8));
+
+		x_iCurrentByte >>= 8;
+		x_iWritingBits -= 8;
+	}
+}
+
+void xMSG_WriteBitData(unsigned char* p, int len)
+{
+	int i = 0;
+	for (; i < len; i++)
+	{
+		xMSG_WriteBits(p[i], 8);
+	}
+}
+void xMSG_WriteBitString(char* p)
+{
+	if (p && p[0] != '\0')
+		xMSG_WriteBitData((unsigned char*)p, strlen(p));
+	xMSG_WriteBits(0, 8);
+}
+
+void xMSG_WriteOneBit(unsigned int iBit)
+{
+	xMSG_WriteBits(iBit, 1);
+}
+
+void xMSG_EndBitWriting()
+{
+	if (x_iWritingBits)
+	{
+		WRITE_BYTE(x_iCurrentByte);
+	}
+}
 
 AMX_NATIVE_INFO my_Natives[] =
 {
@@ -420,32 +470,47 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"stop_mini_server",	stop_mini_server},
 	{"mini_server_res",	mini_server_res},
 	{"test_view_angles",	test_view_angles},
-	{"re_rechecker_add",	re_rechecker_add},
 	{NULL,			NULL},
 };
 
-void OnPluginsLoaded() 
+void OnPluginsLoaded()
 {
-	g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_STRING, FP_DONE);
+	g_hReqForward = MF_RegisterForward("mini_server_req", ET_IGNORE, FP_STRING, FP_STRING, FP_STRING, FP_STRING, FP_DONE);
 }
 
-bool SV_CheckConsistencyResponse_hook(IRehldsHook_SV_CheckConsistencyResponse * t,IGameClient* client, resource_t* res, uint32 hash)
+bool g_initialized = false;
+
+int	DispatchSpawnPre(edict_t* pent)
 {
-	MF_Log("Resource check: %s - %X\n", res->szFileName, hash);
-	return t->callNext(client, res, hash);
+	if (g_initialized)
+	{
+		RETURN_META_VALUE(MRES_IGNORED, 0);
+	}
+	float temp[3];
+
+	g_initialized = true;
+	
+	RETURN_META_VALUE(MRES_IGNORED, 0);
+}
+
+
+void ServerDeactivate_Post()
+{
+	g_initialized = false;
+	RETURN_META(MRES_IGNORED);
 }
 
 
 void OnAmxxAttach() // Server start
 {
-	if (RehldsApi_Init())
-	{
-		g_RehldsHookchains->SV_CheckConsistencyResponse()->registerHook(SV_CheckConsistencyResponse_hook, HC_PRIORITY_DEFAULT);
-	}
-
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);
+	RehldsApi_Init();
+	if (RehldsInitialized)
+	{
+		
+	}
 }
 
 void OnAmxxDetach() // Server stop

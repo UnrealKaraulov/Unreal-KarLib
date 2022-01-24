@@ -9,3 +9,4 @@ extern IRehldsServerData* g_RehldsSv;
 
 extern bool RehldsApi_Init();
 
+extern bool RehldsInitialized;

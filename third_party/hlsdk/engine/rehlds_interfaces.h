@@ -103,7 +103,10 @@ public:
 	virtual bool IsLogActive() = 0;
 	virtual IGameClient* GetClient(int id) = 0;
 	virtual client_t* GetClient_t(int id) = 0;
-	virtual int GetIndexOfClient_t(client_t* client) = 0;
+	virtual int GetIndexOfClient_t(client_t* client) = 0;	
+	virtual int GetMaxClientsLimit() = 0;
+	virtual client_t* GetNextClient_t(client_t* client) = 0;
+	virtual int GetSpawnCount() = 0;
 };
 
 class IRehldsServerData {

@@ -37,7 +37,7 @@ native stop_mini_server();
  * @return  none
  */
 
-forward mini_server_req(ip[],params[],values[]);
+forward mini_server_req(const ip[],const params[],const values[],const path[]);
 
 /**
  * Need call for every mini_server_req with same IP
@@ -48,7 +48,6 @@ forward mini_server_req(ip[],params[],values[]);
  * @return  none
  */
 native mini_server_res(const ip[],const res[]);
-
 
 /* DEBUG FUNCS */
 
