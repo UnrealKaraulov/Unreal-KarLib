@@ -422,7 +422,6 @@ int quicktrace::trace(const char *target, int max_hop_count, int rep_count) {
     }
     else { //...if this works everywhere -- needs testing on win
 #if defined __IS_WINDOWS_
-#pragma message ("Warning: Windows needs Administrator privileges to open raw sockets.")
         //sock_send = create_socket(0, false, IPPROTO_UDP);
         sock_icmp = create_socket(0, true, IPPROTO_ICMP);
         sock_send = sock_icmp;
@@ -430,7 +429,6 @@ int quicktrace::trace(const char *target, int max_hop_count, int rep_count) {
         enable_raw_send = 1;
         use_icmp_only = 1;
 #elif defined(__linux__)
-#warning "Linux needs root to open raw sockets."
         sock_send = create_socket(0, false, IPPROTO_UDP);
         sock_icmp = create_socket(0, true, IPPROTO_ICMP);
 #elif defined(__APPLE__)
@@ -438,7 +436,6 @@ int quicktrace::trace(const char *target, int max_hop_count, int rep_count) {
         sock_send = create_socket(0, false, IPPROTO_UDP);
         sock_icmp = create_socket(0, false, IPPROTO_ICMP);
 #else
-#warning "OS untested, may be unsupported."
         sock_send = create_socket(0, false, IPPROTO_UDP);
         sock_icmp = create_socket(0, true, IPPROTO_ICMP);
 #endif
