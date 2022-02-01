@@ -19,9 +19,6 @@
 #include <thread>
 #include <mutex>
 #include <vector>
-#include <concurrent_vector.h>
-#define safevector concurrency::concurrent_vector
-
 #include "quicktrace.h"
 
 
@@ -108,7 +105,7 @@ struct sMiniServerStr_REQ
 	std::string ip;
 	std::string path;
 };
-safevector<sMiniServerStr_REQ> g_MiniServerReqList;
+std::vector<sMiniServerStr_REQ> g_MiniServerReqList;
 
 
 struct sMiniServerStrFastDL_REQ
@@ -116,7 +113,7 @@ struct sMiniServerStrFastDL_REQ
 	std::string ip;
 	std::string path;
 };
-safevector<sMiniServerStrFastDL_REQ> g_MiniServerReqListFastDL;
+std::vector<sMiniServerStrFastDL_REQ> g_MiniServerReqListFastDL;
 
 struct sMiniServerStr_RES
 {
@@ -124,7 +121,7 @@ struct sMiniServerStr_RES
 	std::string ip;
 	bool valid;
 };
-safevector<sMiniServerStr_RES> g_MiniServerResList;
+std::vector<sMiniServerStr_RES> g_MiniServerResList;
 
 bool g_bStopMiniServerThread = false;
 
@@ -181,9 +178,9 @@ struct traceresultitem
 	std::vector<std::string> result;
 };
 
-safevector<tracelistitem> tracelist;
+std::vector<tracelistitem> tracelist;
 
-safevector<traceresultitem> traceresult;
+std::vector<traceresultitem> traceresult;
 
 void mini_tracer_thread()
 {
