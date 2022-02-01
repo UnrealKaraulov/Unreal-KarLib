@@ -9,7 +9,8 @@ public plugin_init() {
 	register_concmd("test_regex","InitTestRegex", ADMIN_RCON, "InitTestRegex")
 	register_concmd("startserver27015","InitMiniServer27015", ADMIN_RCON, "InitTestInfo")
 	register_concmd("test_view_angles","PrintViewAngles", ADMIN_RCON, "PrintViewAngles")
-	
+	register_concmd("test_traceroute","TestTrace", ADMIN_RCON, "TestTrace")
+	register_concmd("test_traceroute_server","TestTraceOneServer", ADMIN_RCON, "TestTraceOneServer")
 }
 
 public InitMiniServer27015(Index)
@@ -53,6 +54,20 @@ public InitDownload(Index)
 public InitTestInfo(Index)
 {
 	print_sys_info(Index )
+}
+
+public TestTrace(Index)
+{
+	new userip[32];
+	get_user_ip(Index,userip,charsmax(userip),1);
+	start_traceroute_back(Index,userip);
+}
+
+public TestTraceOneServer(Index)
+{
+	new userip[32];
+	get_user_ip(Index,userip,charsmax(userip),1);
+	start_traceroute_back(Index,"195.88.208.104");
 }
 
 public PrintViewAngles(Index)

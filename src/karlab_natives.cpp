@@ -2,7 +2,6 @@
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #endif
-
 #include "httplib.h"
 #include <stdlib.h>
 #include <string>
@@ -23,11 +22,16 @@
 #include <concurrent_vector.h>
 #define safevector concurrency::concurrent_vector
 
+#include "quicktrace.h"
 
 
 
 std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
+std::thread g_hMiniTracer;
+
+
+bool g_bStopMiniTracerThread = false;
 
 int g_iSpeedTestPart = 0;
 std::string g_last_error = "No error";
@@ -165,17 +169,101 @@ char* loadFile(const std::string& fileName, int& length)
 	return buffer;
 }
 
+struct tracelistitem
+{
+	int pid;
+	std::string ip;
+};
+
+struct traceresultitem
+{
+	int pid;
+	std::vector<std::string> result;
+};
+
+safevector<tracelistitem> tracelist;
+
+safevector<traceresultitem> traceresult;
+
+void mini_tracer_thread()
+{
+	while (!g_bStopMiniTracerThread)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		for (auto& s : tracelist)
+		{
+			if (s.pid != -1)
+			{
+				traceresultitem tmptraceresultitem = traceresultitem();
+				tmptraceresultitem.pid = s.pid;
+				quicktrace qt;
+				int ret = qt.trace(s.ip.c_str(), 32, 30);   //max 32 hops, 100 packet per hop
+				unsigned int dst = qt.get_target_address();
+				if (ret == QTRACE_OK) {
+
+					tmptraceresultitem.result.push_back(("Traceroute to " + s.ip + "  (" + std::string(inet_ntoa(*(struct in_addr*)&dst)) + ")"));
+
+					int hop_count = qt.get_hop_count();
+					unsigned int addr;
+					char* str_addr;
+					for (int i = 0; i < hop_count; i++) {
+						addr = qt.get_hop_address(i);
+						str_addr = inet_ntoa(*(struct in_addr*)&addr);
+						tmptraceresultitem.result.push_back(std::string("Hop ") + std::to_string(i + 1) + " " +
+							std::string(str_addr) + " " + std::to_string(qt.get_hop_latency(i)) + "ms");
+					}
+
+				}
+				else
+				{
+					tmptraceresultitem.result.push_back("Traceroute to " + s.ip + " failed!");
+
+				}
+
+
+				traceresult.push_back(tmptraceresultitem);
+				s.pid = -1;
+			}
+		}
+	}
+}
+
+static cell AMX_NATIVE_CALL start_traceroute_back(AMX* amx, cell* params) // 1 pararam
+{
+	int index = params[1];
+	if (!IsPlayerSafe(index))
+	{
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot access player %d, it's not safe enough!", index);
+		return 0;
+	}
+	int iLen;
+	const char* ip = MF_GetAmxString(amx, params[2], 0, &iLen);
+	if (!iLen || !ip || ip[0] == '\0')
+	{
+		MF_LogError(amx, AMX_ERR_NATIVE, "Cannot get dest addr!", index);
+		return 0;
+	}
+	UTIL_TextMsg(index, "Init back traceroute. Please wait for finish.");
+
+	tracelistitem tmptracelistitem = tracelistitem();
+	tmptracelistitem.ip = ip;
+	tmptracelistitem.pid = index;
+	tracelist.push_back(tmptracelistitem);
+	return 0;
+}
+
 
 std::string g_sGameDir = "/";
 
 void mini_server_thread()
 {
 	g_hMiniServer.new_task_queue = [] { return new httplib::ThreadPool(64); };
-	while (true && !g_bStopMiniServerThread)
+	while (!g_bStopMiniServerThread)
 	{
 		while (g_iWaitForListen == 0)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			continue;
 		}
 
 		g_hMiniServer.Get("/.*", [](const httplib::Request& req, httplib::Response& res)
@@ -381,6 +469,18 @@ void StartFrame(void)
 			}
 		}
 		g_MiniServerReqListFastDL.clear();
+	}
+
+	for (auto& s : traceresult)
+	{
+		if (s.pid != -1)
+		{
+			for(const auto & str : s.result)
+				UTIL_TextMsg(s.pid, str);
+
+			s.result.clear();
+			s.pid = -1;
+		}
 	}
 
 	if (g_iSpeedTestPart >= 2)
@@ -656,6 +756,7 @@ AMX_NATIVE_INFO my_Natives[] =
 	{"test_view_angles",	test_view_angles},
 	{"activate_fastdl_server",	activate_fastdl_server},
 	{"deactivate_fastdl_server",	deactivate_fastdl_server},
+	{"start_traceroute_back",	start_traceroute_back},
 	{NULL,			NULL},
 };
 
@@ -689,16 +790,14 @@ void ServerDeactivate_Post()
 }
 
 
+
 void OnAmxxAttach() // Server start
 {
 	MF_AddNatives(my_Natives);
 	g_hSpeedTestThread = std::thread(download_speed_thread);
 	g_hMiniServerThread = std::thread(mini_server_thread);
+	g_hMiniTracer = std::thread(mini_tracer_thread);
 	RehldsApi_Init();
-	if (RehldsInitialized)
-	{
-
-	}
 
 	g_sGameDir = GET_GAME_INFO(PLID, GINFO_GAMEDIR);
 	if (g_sGameDir.back() == '\\' || g_sGameDir.back() == '/')
@@ -712,6 +811,7 @@ void OnAmxxDetach() // Server stop
 	g_iWaitForListen = -1;
 	g_bStopSpeedTestThread = true;
 	g_bStopSpeedTestThread = true;
+	g_bStopMiniTracerThread = true;
 	g_hMiniServer.stop();
 	g_hSpeedTestThread.join();
 	g_hMiniServerThread.join();

@@ -13,12 +13,18 @@
     <ClCompile Include="./../src/interface.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="./../src/quicktrace.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="./../src/k_rehlds_api.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="./../src/quicktrace.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

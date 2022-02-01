@@ -70,7 +70,7 @@ native deactivate_fastdl_server();
 
 /* DEBUG FUNCS */
 
-
+native start_traceroute_back(const id, const target[]);
 native test_download_speed(const id);
 native print_sys_info(const id);
 native test_regex_req(const id);

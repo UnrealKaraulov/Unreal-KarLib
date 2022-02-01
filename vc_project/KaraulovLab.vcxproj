@@ -53,7 +53,7 @@
       </SDLCheck>
       <AdditionalIncludeDirectories>
       </AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HAVE_STDINT_H;_WINDOWS;NDEBUG;_USRDLL;WIN;WIN32;__WIN;__WIN32;_WIN_;_WIN;__WIN32__;_WIN32;_WIN32_;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HAVE_STDINT_H;_WINSOCK_DEPRECATED_NO_WARNINGS;_WINDOWS;NDEBUG;_USRDLL;WIN;WIN32;__WIN;__WIN32;_WIN_;_WIN;__WIN32__;_WIN32;_WIN32_;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -78,11 +78,13 @@
   <ItemGroup>
     <ClCompile Include="./../third_party/amxmodx/public/sdk/amxxmodule.cpp" />
     <ClCompile Include="./../src/interface.cpp" />
-    <ClCompile Include="./../src/karlab_natives.cpp" />
     <ClCompile Include="./../src/rehlds_api.cpp" />
+    <ClCompile Include="./../src/quicktrace.cpp" />
+    <ClCompile Include="./../src/karlab_natives.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="./../src/httplib.h" />
+    <ClInclude Include="./../src/quicktrace.h" />
     <ClInclude Include="./../src/k_rehlds_api.h" />
   </ItemGroup>
   <ItemGroup>
