@@ -18,14 +18,14 @@
  *
  * @return  none
  */
-native init_mini_server(const port);
+native karlib_init_mini_server(const port);
 
 /**
  * Stop mini server
  *
  * @return  none
  */
-native stop_mini_server();
+native karlib_stop_mini_server();
 
 /**
  * Called when server got any request
@@ -38,7 +38,7 @@ native stop_mini_server();
  * @return  none
  */
 
-forward mini_server_req(const ip[],const params[],const values[],const path[]);
+forward karlib_mini_server_req(const ip[],const params[],const values[],const path[]);
 
 /**
  * Called when client request one file from FastDL
@@ -49,7 +49,7 @@ forward mini_server_req(const ip[],const params[],const values[],const path[]);
  * @return  none
  */
 
-forward mini_server_fastdl_req(const ip[],const path[]);
+forward karlib_mini_server_fastdl_req(const ip[],const path[]);
 
 /**
  * Need call for every mini_server_req with same IP
@@ -59,19 +59,24 @@ forward mini_server_fastdl_req(const ip[],const path[]);
  *
  * @return  none
  */
-native mini_server_res(const ip[],const res[]);
+native karlib_mini_server_res(const ip[],const res[]);
 
 
-
-native activate_fastdl_server();
-native deactivate_fastdl_server();
+/**
+ * Activate or deactivate mini fastdl server
+ *
+ * @return  none
+ */
+native karlib_activate_fastdl_server();
+native karlib_deactivate_fastdl_server();
 
 
 
 /* DEBUG FUNCS */
 
-native start_traceroute_back(const id, const target[]);
-native test_download_speed(const id);
-native print_sys_info(const id);
-native test_regex_req(const id);
-native test_view_angles(const id);
+native karlib_start_traceroute_back(const id, const target[]);
+native karlib_test_download_speed(const id);
+native karlib_print_sys_info(const id);
+native karlib_test_regex_req(const id);
+native karlib_test_view_angles(const id);
+
