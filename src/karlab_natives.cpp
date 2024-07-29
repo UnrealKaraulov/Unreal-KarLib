@@ -38,15 +38,6 @@ struct keyvalue_action
 std::vector<keyvalue_action> keyvalue_action_list;
 
 
-void mini_tracer_thread()
-{
-	while (!g_bStopMiniTracerThread)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-
-	}
-}
-
 // keyvalue_get(string key, string callback, int data)
 // keyvalue_set(string key, string value, string callback, int data)
 
@@ -54,8 +45,8 @@ std::thread g_hSpeedTestThread;
 std::thread g_hMiniServerThread;
 std::thread g_hMiniTracer;
 
-
 bool g_bStopMiniTracerThread = false;
+
 
 int g_iSpeedTestPart = 0;
 std::string g_last_error = "No error";

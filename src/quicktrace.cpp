@@ -40,10 +40,10 @@ std::stringstream debugout;
 #endif
 
 
-static unsigned short checksum(int start, unsigned short *addr, int len) {
-    register int nleft = len;
-    register unsigned long sum = 0;
-    register unsigned short *w = addr;
+static unsigned short checksum(int start, unsigned short* addr, int len) {
+    int nleft = len;
+    unsigned long sum = 0;
+    unsigned short* w = addr;
     unsigned short answer = 0;
 
     while (nleft > 1) {
@@ -51,11 +51,11 @@ static unsigned short checksum(int start, unsigned short *addr, int len) {
         nleft -= 2;
     }
     if (nleft == 1) {
-        sum += *(unsigned char *)w;
+        sum += *(unsigned char*)w;
     }
     sum = (sum >> 16) + (sum & 0xffff);
     sum += (sum >> 16);
-    answer = (unsigned short) ~sum;
+    answer = (unsigned short)~sum;
     return (answer);
 }
 

@@ -1,3 +1,10 @@
 
 vc_project/.vs/*
 vc_project/Release/*
+*.tlog
+*.obj
+*.recipe
+*.log
+*.iobj
+*.ipdb
+*.pdb
