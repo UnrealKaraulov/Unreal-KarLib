@@ -21,8 +21,6 @@
 #include <vector>
 #include "quicktrace.h"
 
-#include <concurrent_vector.h>
-
 #include <map>
 
 std::map<std::string, std::string> keyvalues;
